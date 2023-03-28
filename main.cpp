@@ -74,15 +74,6 @@ vector<double> equationPN(const vector<double> &state, double dt)
     for(size_t i = 0; i < 3; i++)
         answer[i] = third_vector[i];
 
-                                                           // new speed (vx + ax * dt,
-    for(size_t i = 3; i < 6; i++)                       // vy + ay * dt,
-        answer[i] = speed[i - 3] + third_vector[i - 3] * dt; // vz + az * dt)
-
-    third_vector = third_vector * dt;                   // new pos (x * vx + ax * dt^2/2,
-    for(size_t i = 6; i < 9; i++)                       // y * vy + ay * dt^2/2, z * vz + az * dt^2/2)
-        answer[i] = pos[i - 6] * speed[i - 6] + (answer[i - 6] * dt * dt) / 2;
-
-
 //    for(auto & a : answer)
 //        std::cout << a << " ";
 //    std::cout << "\n";
@@ -103,13 +94,22 @@ public:
 
     vector<double> RK4(const vector<double> &state, double dt)
     {
-        vector<double> res;
+        vector<double> ;
         auto k1 = equationPN(state, dt);
         auto k2 = equationPN(state + (k1 * 0.5), dt);
         auto k3 = equationPN(state + (k2 * 0.5), dt);
         auto k4 = equationPN(state + k3, dt);
 
         res = state + (k1 + k2 * 2 + k3 * 2 + k4) / 6;
+
+        // new speed (vx + ax * dt,
+        for(size_t i = 3; i < 6; i++)                       // vy + ay * dt,
+        res[i] = state[i] + res[i - 3] * dt; // vz + az * dt)
+
+                        // new pos (x * vx +ax * dt^2/2,
+        for(size_t i = 6; i < 9; i++)                       // y * vy + ay * dt^2/2, z * vz + az * dt^2/2)
+        res[i] = state[i] * state[i - 3] + (res[i - 6] * dt * dt) / 2;
+
         return res;
     }
 };

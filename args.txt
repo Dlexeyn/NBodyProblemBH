@@ -1,0 +1,22 @@
+    double x1 = -5.242356952987637e-8;
+    double y1 = 1.0251948009990125e-8;
+    double z1 = 4.570061117937405e-8;
+    double vx1 = 21649232386304.918;
+    double vy1 = 54072477550287.414;
+    double vz1 = 12944704763502.59;
+
+    //        vector<double> a1 = pos * ( pow(c, 2) - 4 * ((M * G) / rpos) + pow(rspeed, 2) );
+//        vector<double> a_temp = (4 * speed) * (pos * speed);
+
+//        vector<double> a = (- (G * M) / (c * c * (rpos * rpos * rpos))) *
+//                (pos * (c * c - 4 * G * M / rpos + rspeed * rspeed) - 4 * speed * (speed * pos));
+
+//        a1 = a1 - a_temp;
+//        a1 = a1 * NewtonScal;
+
+vector<double> state0 = {-2257909837.456643,
+                             3957148083.9768925,
+                             406600761.0854677,
+                             -386689476.65532297,
+                             -232717251.55241477,
+                             123989524.98646776};

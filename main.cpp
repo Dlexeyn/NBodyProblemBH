@@ -1,25 +1,27 @@
 #include "mainwindow.hpp"
 
+#include <Q3DScatter>
+#include <QtDataVisualization>
 #include <QApplication>
 #include <bits/stdc++.h>
 
-
+using namespace QtDataVisualization;
 using namespace std;
 
 // constants
-long double G = 6.674e-11;  // gravitational constant in m^3/kg/s^2
-long double c = 299792458;  //speed of light in m/s
-long double M = 4e6 * 1.98847e30;  // mass of the black hole in kg
+double G = 6.674 * pow(10, -11);  // gravitational constant in m^3/kg/s^2
+double c = 299792458;               //speed of light in m/s
+double M = 8.26 * pow(10, 36);  // mass of the black hole in kg
 
-vector<double> operator * (const vector<double> &v1, const vector<double> &v2){
-    vector<double> res(v1.size());
+double operator * (const vector<double> &v1, const vector<double> &v2){
+    double res = 0;
     for (size_t i = 0; i < v1.size(); i++){
-        res[i] += v1[i] * v2[i];
+        res += v1[i] * v2[i];
     }
     return res;
 }
 
-vector<double> operator * (const vector<double> &v1, double d){
+vector<double> operator * (const double d, const vector<double> &v1){
     vector<double> res(v1.size());
     for (size_t i = 0; i < v1.size(); i++){
         res[i] = v1[i] * d;
@@ -27,7 +29,15 @@ vector<double> operator * (const vector<double> &v1, double d){
     return res;
 }
 
-vector<double> operator / (const vector<double> &v1, double d){
+vector<double> operator * (const vector<double> &v1, const double d){
+    vector<double> res(v1.size());
+    for (size_t i = 0; i < v1.size(); i++){
+        res[i] = v1[i] * d;
+    }
+    return res;
+}
+
+vector<double> operator / (const vector<double> &v1, const double d){
     vector<double> res(v1.size());
     for (size_t i = 0; i < v1.size(); i++){
         res[i] = v1[i] / d;
@@ -36,49 +46,19 @@ vector<double> operator / (const vector<double> &v1, double d){
 }
 
 vector<double> operator - (const vector<double> &v1, const vector<double> &v2){
-    vector<double> res(min(v1.size(),v2.size()));
-    for (size_t i = 0; i < min(v1.size(),v2.size()); i++){
+    vector<double> res(v1.size());
+    for (size_t i = 0; i < v1.size(); i++){
         res[i] = v1[i] - v2[i];
     }
     return res;
 }
 
 vector<double> operator + (const vector<double> &v1, const vector<double> &v2){
-    vector<double> res(min(v1.size(),v2.size()));
-    for (size_t i = 0; i < min(v1.size(),v2.size()); i++){
+    vector<double> res(v1.size());
+    for (size_t i = 0; i < v1.size(); i++){
         res[i] = v1[i] + v2[i];
     }
     return res;
-}
-
-vector<double> equationPN(const vector<double> &state, double dt)
-{
-
-    vector<double> pos, speed, answer(9);
-    pos = {state[6], state[7], state[8]};
-    speed = {state[3], state[4], state[5]};
-
-    double rpos = sqrt(pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2]);
-    double rspeed = sqrt(speed[0] * speed[0] + speed[1] * speed[1] + speed[2] * speed[2]);
-
-    double NewtonScal = - (G * M) / (c * c * pow(rpos, 3));
-
-    vector<double> first_vector = pos * (c * c - 4 * ((M * G) / rpos) + rspeed * rspeed);
-    vector<double> second_vector = speed * 4;
-    vector<double> third_vector = pos * speed;
-
-    second_vector = second_vector * third_vector;
-    third_vector = first_vector - second_vector;
-    third_vector = third_vector * NewtonScal;
-
-    for(size_t i = 0; i < 3; i++)
-        answer[i] = third_vector[i];
-
-//    for(auto & a : answer)
-//        std::cout << a << " ";
-//    std::cout << "\n";
-
-    return answer;
 }
 
 
@@ -86,15 +66,49 @@ class Simulation
 {
 private:
     vector<double> state;
-    vector<vector<double>> history;
-public:
 
+    MainWindow *window;
+
+public:
+    vector<vector<double>> history;
     Simulation(vector<double> state0)
-        : state(state0) {}
+        : state(state0) {
+        window = new MainWindow(nullptr);
+    }
+
+    vector<double> equationPN(const vector<double> &state, double dt)
+    {
+
+        vector<double> pos, speed, answer(6), accel(3);
+
+        pos = {state[0], state[1], state[2]};
+        speed = {state[3], state[4], state[5]};
+
+        for (int i = 0; i < 3; ++i) {
+            answer[i] = dt * speed[i];      // dr = v * dt
+        }
+
+        double rpos = sqrt(pos * pos);
+        double rspeed = sqrt(speed * speed);
+        double NewtonScal = - (G *  M) / ( pow(c, 2) * pow(rpos, 3) );
+
+        for(int i = 0; i < 3; i++)
+        {
+            accel[i] = NewtonScal *
+                    (pos[i] * (pow(c, 2) - 4 * G * M / rpos + rspeed * rspeed)
+                     - 4 * speed[i] * (pos * speed));
+        }
+
+        for (int i = 3; i < 6; ++i) {
+            answer[i] = dt * accel[i - 3];      // dv = a * dt
+        }
+
+        return answer;
+    }
 
     vector<double> RK4(const vector<double> &state, double dt)
     {
-        vector<double> ;
+        vector<double> res;
         auto k1 = equationPN(state, dt);
         auto k2 = equationPN(state + (k1 * 0.5), dt);
         auto k3 = equationPN(state + (k2 * 0.5), dt);
@@ -102,41 +116,50 @@ public:
 
         res = state + (k1 + k2 * 2 + k3 * 2 + k4) / 6;
 
-        // new speed (vx + ax * dt,
-        for(size_t i = 3; i < 6; i++)                       // vy + ay * dt,
-        res[i] = state[i] + res[i - 3] * dt; // vz + az * dt)
-
-                        // new pos (x * vx +ax * dt^2/2,
-        for(size_t i = 6; i < 9; i++)                       // y * vy + ay * dt^2/2, z * vz + az * dt^2/2)
-        res[i] = state[i] * state[i - 3] + (res[i - 6] * dt * dt) / 2;
-
         return res;
     }
+
+    void runSimulation(double time, double dt)
+    {
+        int steps = int(time / dt);
+        vector<double> res = state;
+
+        while(steps > 0)
+        {
+            res = RK4(res, dt);
+            history.push_back(res);
+            steps--;
+        }
+    }
+
+    void printRes()
+    {
+        QScatterDataArray data;
+
+        for(auto &state : history)
+        {
+            data << QVector3D(state[0], state[1], state[2]);
+        }
+        window->printGraph(data);
+    }
 };
-
-
 
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    double x1 = 0.06759250481233711;
-    double y1 = 0.04047821639956209;
-    double z1 = -0.029622111319578856;
-    double vx1 = 36762194899.701904;
-    double vy1 = 1395427078.069418;
-    double vz1 = -27363079457.16237;
 
-    double dt = 100000;
-    vector<double> state0 = {0, 0, 0, vx1, vy1, vz1, x1, y1, z1};
+    double dt = 10000000;
+    vector<double> state0 = {-2257909837.456643,
+                             3957148083.9768925,
+                             406600761.0854677,
+                             -386689476.65532297,
+                             -232717251.55241477,
+                             123989524.98646776};
+
     Simulation sim(state0);
-    auto res = sim.RK4(state0, dt);
+    sim.runSimulation(dt * 10000, dt);
+    sim.printRes();
 
-    cout << setprecision(30);
-    for(auto & a : res)
-        std::cout << a << " ";
-    std::cout << "\n";
-//    MainWindow w;
-//    w.show();
-    return 0;
+    return a.exec();
 }

@@ -70,9 +70,9 @@ vector<double> operator + (const vector<double> &v1, const vector<double> &v2){
 class Simulation
 {
 private:
-    vector<double> state;   // начальное состояние
-    MainWindow *window;
-    vector<vector<double>> history;
+    vector<double> state;           // начальное состояние
+    MainWindow *window;             // окно для графика
+    vector<vector<double>> history; // история состояний
 
 public:
     Simulation(vector<double> state0)
@@ -125,6 +125,7 @@ public:
         return res;
     }
 
+    // Функция для запуска расчета
     void runSimulation(double time, double dt)
     {
         int steps = int(time / dt);
@@ -138,6 +139,7 @@ public:
         }
     }
 
+    // Функция вывода на график в окне MainWindow
     void printRes()
     {
         QScatterDataArray data;

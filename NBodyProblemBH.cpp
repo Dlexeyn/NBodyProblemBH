@@ -13,6 +13,11 @@ double G = 6.674 * pow(10, -11);  // gravitational constant in m^3/kg/s^2
 double c = 299792458;               //speed of light in m/s
 double M = 8.26 * pow(10, 36);  // mass of the black hole in kg
 
+int HOUR = 3600;
+int DAY = 24;
+int YEAR = 365;
+
+
 double operator * (const vector<double> &v1, const vector<double> &v2){
     double res = 0;
     for (size_t i = 0; i < v1.size(); i++){
@@ -65,17 +70,17 @@ vector<double> operator + (const vector<double> &v1, const vector<double> &v2){
 class Simulation
 {
 private:
-    vector<double> state;
-
+    vector<double> state;   // начальное состояние
     MainWindow *window;
+    vector<vector<double>> history;
 
 public:
-    vector<vector<double>> history;
     Simulation(vector<double> state0)
         : state(state0) {
         window = new MainWindow(nullptr);
     }
 
+    // Функция правой части
     vector<double> equationPN(const vector<double> &state, double dt)
     {
 
@@ -106,6 +111,7 @@ public:
         return answer;
     }
 
+    // Классический метод Рунге-Кутты
     vector<double> RK4(const vector<double> &state, double dt)
     {
         vector<double> res;
@@ -149,16 +155,16 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    double dt = 10000000;
-    vector<double> state0 = {-2257909837.456643,
-                             3957148083.9768925,
-                             406600761.0854677,
-                             -386689476.65532297,
-                             -232717251.55241477,
-                             123989524.98646776};
+    double dt = HOUR;
+    vector<double> state0 = {48903751673.563965,    //x0
+                             -70117917298.42145,    //y0
+                             -86465695629.55685,    //z0
+                             -25057.691331305898,   //vx0
+                             6970.524886646228,     //vy0
+                             24203.64291741095};    //vz0
 
     Simulation sim(state0);
-    sim.runSimulation(dt * 10000, dt);
+    sim.runSimulation(HOUR * DAY * YEAR, dt);
     sim.printRes();
 
     return a.exec();

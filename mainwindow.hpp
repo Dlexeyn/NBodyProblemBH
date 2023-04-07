@@ -19,7 +19,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void printGraph(QScatterDataArray &array);
+    void printGraph(std::vector<QScatterDataArray> &data);
 
 private:
     Ui::MainWindow *ui;

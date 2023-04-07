@@ -4,18 +4,21 @@
 #include <QtDataVisualization>
 #include <QApplication>
 #include <bits/stdc++.h>
+#include <fstream>
 
 using namespace QtDataVisualization;
 using namespace std;
 
 // constants
-double G = 6.674 * pow(10, -11);  // gravitational constant in m^3/kg/s^2
-double c = 299792458;               //speed of light in m/s
-double M = 8.26 * pow(10, 36);  // mass of the black hole in kg
+const double G = 6.674e-20;     // gravitational constant in km^3/kg/s^2
+const double c = 300000.0;      //speed of light in km/s
+const double M = 7.9556e+36;    // mass of the black hole in kg
 
-int HOUR = 3600;
-int DAY = 24;
-int YEAR = 365;
+const int HOUR = 3600;
+const int DAY = 24;
+const int YEAR = 365;
+
+const int SIZE_VECTOR = 3;
 
 
 double operator * (const vector<double> &v1, const vector<double> &v2){
@@ -67,86 +70,181 @@ vector<double> operator + (const vector<double> &v1, const vector<double> &v2){
 }
 
 
+class Star
+{
+    // вектор для хранения всех позиций
+    vector<vector<double>> history;
+
+    // вектор для хранения последней записи в history
+    vector<double> prev_state;
+
+public:
+    Star(string name_file) {
+        if(read_file(name_file))
+        {
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    /**
+     * @brief read_file - функция чтения начальных данных из
+     * файла для звезды
+     * @param name_file - имя файла
+     * @return 0 в случае успешного чтения,
+     * -1 если файл невозможно открыть,
+     * -2 строка в файле некорректна
+     */
+    int read_file(const string &name_file)
+    {
+        string temp_line;
+        ifstream in_file(name_file);
+
+        if(in_file.is_open())
+        {
+            prev_state.resize(SIZE_VECTOR * 2);
+            int index = 0;
+            while(getline(in_file, temp_line))
+            {
+                try {
+                    prev_state[index++] = stod(temp_line);
+                } catch (std::invalid_argument const& ex) {
+                    std::cout << name_file << ": incorrect line " << index + 1 << "\n";
+                    return -2;
+                }
+
+            }
+        }
+        else
+            return -1;
+        in_file.close();
+        std::cout << name_file << " - correct)\n";
+        return 0;
+    }
+
+
+    void add_state_to_history(vector<double> &new_state) { history.push_back(new_state); }
+
+    vector<vector<double> > getHistory() const { return history; }
+
+    vector<double> getPrev_state() const { return prev_state; }
+
+    void setPrev_state(const vector<double> &newPrev_state) { prev_state = newPrev_state; }
+};
+
+
 class Simulation
 {
 private:
-    vector<double> state;           // начальное состояние
-    MainWindow *window;             // окно для графика
-    vector<vector<double>> history; // история состояний
+    // вектор указателей на объекты класса Star
+    vector<Star*> stars;
+
+    // окно для графика
+    MainWindow *window;
+
+    // шаг для метода численного интегрирования
+    double dt;
+
+    // временные значения для метода численного интегрирования
+    vector<double> k1, k2, k3, k4;
 
 public:
-    Simulation(vector<double> state0)
-        : state(state0) {
+    Simulation(Star *S2, Star *S38, Star *S55, double dt)
+        : dt(dt)
+    {
+        stars = { S2, S38, S55 };
         window = new MainWindow(nullptr);
     }
 
-    // Функция правой части
-    vector<double> equationPN(const vector<double> &state, double dt)
+    /**
+     * @brief equationPN - Функция правой части
+     * @param state - вектор состояния
+     * @param answer - следующий вектор состояния
+     */
+    void equationPN(const vector<double> &state, vector<double> &answer)
     {
+        double r_pos = 0, r_speed = 0, prod_vectors = 0;
+        answer.clear();
+        answer.resize(SIZE_VECTOR * 2);
+        vector<double> accel(SIZE_VECTOR);
 
-        vector<double> pos, speed, answer(6), accel(3);
-
-        pos = {state[0], state[1], state[2]};
-        speed = {state[3], state[4], state[5]};
-
-        for (int i = 0; i < 3; ++i) {
-            answer[i] = dt * speed[i];      // dr = v * dt
+        for (int i = 0; i < SIZE_VECTOR; ++i) {
+            answer[i] = dt * state[i + SIZE_VECTOR];      // dr = v * dt
         }
 
-        double rpos = sqrt(pos * pos);
-        double rspeed = sqrt(speed * speed);
-        double NewtonScal = - (G *  M) / ( pow(c, 2) * pow(rpos, 3) );
-
-        for(int i = 0; i < 3; i++)
+        for(int i = 0; i < SIZE_VECTOR; i++)
         {
-            accel[i] = NewtonScal *
-                    (pos[i] * (pow(c, 2) - 4 * G * M / rpos + rspeed * rspeed)
-                     - 4 * speed[i] * (pos * speed));
+            r_pos += pow(state[i], 2);
+            r_speed += pow(state[i + SIZE_VECTOR], 2);
+            prod_vectors += state[i] * state[SIZE_VECTOR + i];
+        }
+        r_pos = sqrt(r_pos);
+        r_speed = sqrt(r_speed);
+
+        double Newton_factor = - (G * M) / ( pow(c, 2) * pow(r_pos, 3) );
+        double prod = pow(c, 2) - 4 * (G * M)  / r_pos + pow(r_speed, 2);
+
+        for(int i = 0; i < SIZE_VECTOR; i++)
+        {
+            accel[i] = Newton_factor * (prod * state[i] - 4 * state[i + 3] * prod_vectors);
         }
 
-        for (int i = 3; i < 6; ++i) {
+        for (int i = SIZE_VECTOR; i < SIZE_VECTOR * 2; ++i) {
             answer[i] = dt * accel[i - 3];      // dv = a * dt
         }
 
-        return answer;
     }
 
-    // Классический метод Рунге-Кутты
-    vector<double> RK4(const vector<double> &state, double dt)
+    //
+    /**
+     * @brief RK4 - Классический метод Рунге-Кутты
+     * @param state - вектор аргументов с предыдущего шага
+     * @return - вектор значений в следующей точке
+     */
+    void RK4(const vector<double> &state, vector<double> &res)
     {
-        vector<double> res;
-        auto k1 = equationPN(state, dt);
-        auto k2 = equationPN(state + (k1 * 0.5), dt);
-        auto k3 = equationPN(state + (k2 * 0.5), dt);
-        auto k4 = equationPN(state + k3, dt);
+        equationPN(state, k1);
+        equationPN(state + (k1 * 0.5), k2);
+        equationPN(state + (k2 * 0.5), k3);
+        equationPN(state + k3, k4);
 
         res = state + (k1 + k2 * 2 + k3 * 2 + k4) / 6;
-
-        return res;
     }
 
-    // Функция для запуска расчета
-    void runSimulation(double time, double dt)
+    /**
+     * @brief runSimulation - Функция для запуска расчета
+     * @param time - время рассчета
+     */
+    void runSimulation(double time)
     {
+        cout << "Simulation is running...\n";
         int steps = int(time / dt);
-        vector<double> res = state;
+
+        vector<vector<double>> stars_result(stars.size());
 
         while(steps > 0)
         {
-            res = RK4(res, dt);
-            history.push_back(res);
+            for(size_t index = 0; index < stars.size(); index++)
+            {
+                RK4(stars[index]->getPrev_state(), stars_result[index]);
+                stars[index]->add_state_to_history(stars_result[index]);
+                stars[index]->setPrev_state(stars_result[index]);
+            }
             steps--;
         }
     }
 
-    // Функция вывода на график в окне MainWindow
+    /**
+     * @brief printRes - Функция вывода графика в окне MainWindow
+     */
     void printRes()
     {
-        QScatterDataArray data;
-
-        for(auto &state : history)
+        vector<QScatterDataArray> data(stars.size());
+        for(size_t index = 0; index < stars.size(); index++)
         {
-            data << QVector3D(state[0], state[1], state[2]);
+            for(auto state : stars[index]->getHistory())
+            {
+                data[index] << QVector3D(state[0], state[1], state[2]);
+            }
         }
         window->printGraph(data);
     }
@@ -156,18 +254,13 @@ public:
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
-    double dt = HOUR;
-    vector<double> state0 = {48903751673.563965,    //x0
-                             -70117917298.42145,    //y0
-                             -86465695629.55685,    //z0
-                             -25057.691331305898,   //vx0
-                             6970.524886646228,     //vy0
-                             24203.64291741095};    //vz0
-
-    Simulation sim(state0);
-    sim.runSimulation(HOUR * DAY * YEAR, dt);
-    sim.printRes();
+    Star S2("s2.txt");
+    Star S38("s38.txt");
+    Star S55("s55.txt");
+    Simulation simulation(&S2, &S38, &S55, HOUR);
+    simulation.runSimulation(HOUR * DAY * YEAR * 20);
+    simulation.printRes();
 
     return a.exec();
 }
+

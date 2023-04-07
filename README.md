@@ -1,6 +1,6 @@
 ### NBodyProblemBH
 #### Main project structure:
-![Main project structure: ](https://drive.google.com/file/d/135yVFj7LtMpieOYnM-ge07kA64U5ZNWT/view?usp=share_link)
+![Main project structure: ](https://github.com/Dlexeyn/NBodyProblemBH/blob/main/Graphic.png)
 
 File with direct task - NBodyProblemBH.cpp
 The class Qt responsible for the graph output - mainwindow.cpp

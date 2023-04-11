@@ -1,4 +1,4 @@
-QT       += core gui datavisualization
+QT       += core gui datavisualization charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

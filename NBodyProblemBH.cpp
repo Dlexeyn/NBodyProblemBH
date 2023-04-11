@@ -6,6 +6,7 @@
 #include <QtDataVisualization>
 #include <QApplication>
 #include <bits/stdc++.h>
+#include <QPointF>
 #include <fstream>
 
 using namespace QtDataVisualization;
@@ -244,6 +245,9 @@ public:
         double Decl = asin(pos[2] / r_pos);
         double RA = asin(pos[1] / r_pos2d);
 
+        Decl -= -0.50628161876;
+        RA -= 4.84765199741;
+
         res = make_pair(Decl, RA);
 
         return res;
@@ -294,8 +298,13 @@ public:
      */
     void printRes()
     {
+        double min_data_x = 100.0, min_data_y = 100.0;
+        double max_data_x = -100.0, max_data_y = -100.0;
         vector<QScatterDataArray> data_decart(stars.size());
-        vector<QScatterDataArray> data_sph(stars.size());
+        QLineSeries *first = new QLineSeries();
+        QLineSeries *second = new QLineSeries();
+        QLineSeries *third = new QLineSeries();
+        vector<QLineSeries*> data_sph = { first, second, third };
         for(size_t index = 0; index < stars.size(); index++)
         {
             for(auto state : stars[index]->getHistory())
@@ -304,10 +313,17 @@ public:
             }
 
             for(auto state_sph : stars[index]->getSpherical_history())
-                data_sph[index] << QVector3D(state_sph.first, state_sph.second, 0);
+            {
+                min_data_x = (min_data_x > state_sph.first) ? state_sph.first : min_data_x;
+                min_data_y = (min_data_y > state_sph.second) ? state_sph.second : min_data_y;
+
+                max_data_x = (max_data_x < state_sph.first) ? state_sph.first : max_data_x;
+                max_data_y = (max_data_y < state_sph.second) ? state_sph.second : max_data_y;
+                *data_sph[index] << QPointF(state_sph.first, state_sph.second);
+            }
         }
         window_decart->printGraph(data_decart);
-        window_sph->printGraph(data_sph);
+        window_sph->printGraph(first, second, third, min_data_x, min_data_y, max_data_x, max_data_y);
     }
 };
 

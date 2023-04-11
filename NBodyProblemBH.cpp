@@ -26,6 +26,8 @@ const double X_BH = -16142282780211031640.09676999264;
 const double Y_BH = 118611250811694902698.78585427456;
 const double Z_BH = 209892887795241600000.0;
 
+const double radian = 206264.816;
+
 
 double operator * (const vector<double> &v1, const vector<double> &v2){
     double res = 0;
@@ -221,6 +223,10 @@ public:
         pair<double, double> res;
         vector<double> pos = {current_state[0] * 1000, current_state[1] * 1000, current_state[2] * 1000};
         double r_pos = 0, r_pos2d = 0;
+
+//        pos[0] += 16525943605462975000.0;
+//        pos[1] += -121430337243901620000.0;
+//        pos[2] += -221014581858462400000.0;
 
         pos[0] += X_BH;
         pos[1] += Y_BH;

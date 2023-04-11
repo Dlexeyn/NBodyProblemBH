@@ -1,4 +1,4 @@
-QT       += core gui datavisualization
+QT       += core gui datavisualization charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,9 +10,13 @@ CONFIG += c++17
 
 SOURCES += \
     NBodyProblemBH.cpp \
+    Window_Decart_Graph.cpp \
+    Window_sph_graph.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    Window_Decart_Graph.hpp \
+    Window_sph_graph.hpp \
     mainwindow.hpp
 
 FORMS += \

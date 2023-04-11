@@ -1,9 +1,12 @@
+#include "Window_Decart_Graph.hpp"
+#include "Window_sph_graph.hpp"
 #include "mainwindow.hpp"
 
 #include <Q3DScatter>
 #include <QtDataVisualization>
 #include <QApplication>
 #include <bits/stdc++.h>
+#include <QPointF>
 #include <fstream>
 
 using namespace QtDataVisualization;
@@ -19,6 +22,12 @@ const int DAY = 24;
 const int YEAR = 365;
 
 const int SIZE_VECTOR = 3;
+
+const double X_BH = -16142282780211031640.09676999264;
+const double Y_BH = 118611250811694902698.78585427456;
+const double Z_BH = 209892887795241600000.0;
+
+const double radian = 206264.816;
 
 
 double operator * (const vector<double> &v1, const vector<double> &v2){
@@ -75,6 +84,8 @@ class Star
     // вектор для хранения всех позиций
     vector<vector<double>> history;
 
+    vector<pair<double, double>> spherical_history;
+
     // вектор для хранения последней записи в history
     vector<double> prev_state;
 
@@ -129,6 +140,11 @@ public:
     vector<double> getPrev_state() const { return prev_state; }
 
     void setPrev_state(const vector<double> &newPrev_state) { prev_state = newPrev_state; }
+
+    vector<pair<double, double> > getSpherical_history() const { return spherical_history; }
+
+    void add_state_to_sph_history(pair<double, double> new_state) { spherical_history.push_back(new_state); }
+
 };
 
 
@@ -138,8 +154,11 @@ private:
     // вектор указателей на объекты класса Star
     vector<Star*> stars;
 
-    // окно для графика
-    MainWindow *window;
+    // окно для графика в декартовых координатах
+    Window_Decart_Graph *window_decart;
+
+    // окно для графика в сферических координатах
+    Window_Sph_Graph *window_sph;
 
     // шаг для метода численного интегрирования
     double dt;
@@ -152,7 +171,8 @@ public:
         : dt(dt)
     {
         stars = { S2, S38, S55 };
-        window = new MainWindow(nullptr);
+        window_decart = new Window_Decart_Graph(nullptr);
+        window_sph = new Window_Sph_Graph(nullptr);
     }
 
     /**
@@ -194,6 +214,45 @@ public:
 
     }
 
+    /**
+     * @brief translate_to_spherical - функция перевода декартовых координат в сферические
+     * @param current_state - текущий вектор состояния с декартовыми координатами
+     * @return pair, где первый элемент - Decl., а второй - R.A.
+     */
+    pair<double,double> translate_to_spherical(const vector<double> &current_state)
+    {
+        pair<double, double> res;
+        vector<double> pos = {current_state[0] * 1000, current_state[1] * 1000, current_state[2] * 1000};
+        double r_pos = 0, r_pos2d = 0;
+
+//        pos[0] += 16525943605462975000.0;
+//        pos[1] += -121430337243901620000.0;
+//        pos[2] += -221014581858462400000.0;
+
+        pos[0] += X_BH;
+        pos[1] += Y_BH;
+        pos[2] += Z_BH;
+
+        for(size_t i = 0; i < SIZE_VECTOR; i++)
+            r_pos += pow(pos[i], 2);
+
+        for(size_t i = 0; i < 2; i++)
+            r_pos2d += pow(pos[i], 2);
+
+        r_pos = sqrt(r_pos);
+        r_pos2d = sqrt(r_pos2d);
+
+        double Decl = asin(pos[2] / r_pos);
+        double RA = asin(pos[1] / r_pos2d);
+
+        Decl -= -0.50628161876;
+        RA -= 4.84765199741;
+
+        res = make_pair(Decl, RA);
+
+        return res;
+    }
+
     //
     /**
      * @brief RK4 - Классический метод Рунге-Кутты
@@ -227,6 +286,7 @@ public:
             {
                 RK4(stars[index]->getPrev_state(), stars_result[index]);
                 stars[index]->add_state_to_history(stars_result[index]);
+                stars[index]->add_state_to_sph_history(translate_to_spherical(stars_result[index]));
                 stars[index]->setPrev_state(stars_result[index]);
             }
             steps--;
@@ -238,15 +298,32 @@ public:
      */
     void printRes()
     {
-        vector<QScatterDataArray> data(stars.size());
+        double min_data_x = 100.0, min_data_y = 100.0;
+        double max_data_x = -100.0, max_data_y = -100.0;
+        vector<QScatterDataArray> data_decart(stars.size());
+        QLineSeries *first = new QLineSeries();
+        QLineSeries *second = new QLineSeries();
+        QLineSeries *third = new QLineSeries();
+        vector<QLineSeries*> data_sph = { first, second, third };
         for(size_t index = 0; index < stars.size(); index++)
         {
             for(auto state : stars[index]->getHistory())
             {
-                data[index] << QVector3D(state[0], state[1], state[2]);
+                data_decart[index] << QVector3D(state[0], state[1], state[2]);
+            }
+
+            for(auto state_sph : stars[index]->getSpherical_history())
+            {
+                min_data_x = (min_data_x > state_sph.first) ? state_sph.first : min_data_x;
+                min_data_y = (min_data_y > state_sph.second) ? state_sph.second : min_data_y;
+
+                max_data_x = (max_data_x < state_sph.first) ? state_sph.first : max_data_x;
+                max_data_y = (max_data_y < state_sph.second) ? state_sph.second : max_data_y;
+                *data_sph[index] << QPointF(state_sph.first, state_sph.second);
             }
         }
-        window->printGraph(data);
+        window_decart->printGraph(data_decart);
+        window_sph->printGraph(first, second, third, min_data_x, min_data_y, max_data_x, max_data_y);
     }
 };
 

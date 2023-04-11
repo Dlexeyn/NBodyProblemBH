@@ -2,16 +2,12 @@
 #define MAINWINDOW_SPH_GRAPH_HPP
 
 #include <QMainWindow>
-#include <Q3DScatter>
-#include <QtDataVisualization>
 #include <QLogValueAxis>
 #include <QLineSeries>
 #include <QValueAxis>
 #include <QChart>
 #include <QChartView>
-#include "qcustomplot.h"
 
-using namespace QtDataVisualization;
 using namespace QtCharts;
 
 namespace Ui {
@@ -29,8 +25,6 @@ public:
 
 private:
     Ui::MainWindow_Sph_Graph *ui;
-    Q3DScatter *scatter;
-    QCustomPlot *graph;
     QChartView *chartView;
 };
 

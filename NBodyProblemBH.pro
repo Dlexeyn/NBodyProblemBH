@@ -10,9 +10,13 @@ CONFIG += c++17
 
 SOURCES += \
     NBodyProblemBH.cpp \
+    Window_Decart_Graph.cpp \
+    Window_sph_graph.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    Window_Decart_Graph.hpp \
+    Window_sph_graph.hpp \
     mainwindow.hpp
 
 FORMS += \

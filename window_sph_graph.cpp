@@ -31,7 +31,7 @@ void Window_Sph_Graph::printGraph(QLineSeries *firstStar, QLineSeries *secondSta
 
     QValueAxis *axisX = new QValueAxis();
     axisX->setTitleText("Decl, arcsec");
-    axisX->setLabelFormat("%.20f");
+    axisX->setLabelFormat("%.3f");
     axisX->setTickCount(10);
     axisX->setRange(min_x, max_x);
     chart->addAxis(axisX, Qt::AlignBottom);
@@ -41,7 +41,7 @@ void Window_Sph_Graph::printGraph(QLineSeries *firstStar, QLineSeries *secondSta
 
     QValueAxis *axisY = new QValueAxis();
     axisY->setTitleText("R.A., arcsec");
-    axisY->setLabelFormat("%.20f");
+    axisY->setLabelFormat("%.3f");
     axisY->setTickCount(10);
     axisY->setRange(min_y, max_y);
     chart->addAxis(axisY, Qt::AlignLeft);

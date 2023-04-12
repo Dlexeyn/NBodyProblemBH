@@ -10,12 +10,13 @@ CONFIG += c++17
 
 SOURCES += \
     NBodyProblemBH.cpp \
-    Window_sph_graph.cpp
+    window_sph_graph.cpp
 
 HEADERS += \
-    Window_sph_graph.hpp
+    window_sph_graph.hpp
 
-FORMS +=
+FORMS += \
+    window_sph_graph.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -1,19 +1,12 @@
-#include "Window_sph_graph.hpp"
-#include "ui_mainwindow_sph_graph.h"
+#include "window_sph_graph.hpp"
+#include "ui_window_sph_graph.h"
 
 Window_Sph_Graph::Window_Sph_Graph(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow_Sph_Graph)
+    ui(new Ui::Window_Sph_Graph)
 {
     ui->setupUi(this);
-//    scatter = new Q3DScatter();
-//    scatter->setFlags(scatter->flags() ^ Qt::FramelessWindowHint);
-//    scatter->setShadowQuality(QAbstract3DGraph::ShadowQualityNone);
-//    QWidget *container = QWidget::createWindowContainer(scatter);
-
     chartView = new QChartView(this);
-
-
     ui->horizontalLayout->addWidget(chartView);
 }
 
@@ -22,21 +15,12 @@ Window_Sph_Graph::~Window_Sph_Graph()
     delete ui;
 }
 
-void Window_Sph_Graph::printGraph(QLineSeries *firstStar,
-                                  QLineSeries *secondStar,
-                                  QLineSeries *thirdStar,
-                                  double &min_x, double &min_y,
-                                  double &max_x, double &max_y)
+void Window_Sph_Graph::printGraph(QLineSeries *firstStar, QLineSeries *secondStar, QLineSeries *thirdStar, double &min_x, double &min_y, double &max_x, double &max_y)
 {
-//    std::vector<QColor> colors = { Qt::green, Qt::blue, Qt::red };
-//    for(std::size_t i = 0; i < data.size(); i++)
-//    {
-//        QScatter3DSeries *current_series = new QScatter3DSeries;
-//        current_series->dataProxy()->addItems(data[i]);
-//        current_series->setBaseColor(colors[i]);
-//        scatter->addSeries(current_series);
-//    }
-//    scatter->show();
+    std::vector<QColor> colors = { Qt::green, Qt::blue, Qt::red };
+    firstStar->setColor(colors[0]);     // S2
+    secondStar->setColor(colors[1]);    // S38
+    thirdStar->setColor(colors[2]);     // S55
 
     QChart *chart = new QChart();
     chart->addSeries(firstStar);
@@ -44,10 +28,9 @@ void Window_Sph_Graph::printGraph(QLineSeries *firstStar,
     chart->addSeries(thirdStar);
     chart->legend()->hide();
     chart->setTitle("Graphic");
-    //chart->setPlotArea()
 
     QValueAxis *axisX = new QValueAxis();
-    axisX->setTitleText("Decl, рад");
+    axisX->setTitleText("Decl, arcsec");
     axisX->setLabelFormat("%.20f");
     axisX->setTickCount(10);
     axisX->setRange(min_x, max_x);
@@ -57,7 +40,7 @@ void Window_Sph_Graph::printGraph(QLineSeries *firstStar,
     thirdStar->attachAxis(axisX);
 
     QValueAxis *axisY = new QValueAxis();
-    axisY->setTitleText("R.A., рад");
+    axisY->setTitleText("R.A., arcsec");
     axisY->setLabelFormat("%.20f");
     axisY->setTickCount(10);
     axisY->setRange(min_y, max_y);

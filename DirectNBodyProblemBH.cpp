@@ -1,4 +1,6 @@
 #include "window_sph_graph.hpp"
+#include "Constants.h"
+#include "Star.cpp"
 
 #include <QApplication>
 #include <bits/stdc++.h>
@@ -8,21 +10,6 @@
 
 using namespace std;
 
-// constants
-const double G = 6.674e-20;     // gravitational constant in km^3/kg/s^2
-const double c = 300000.0;      //speed of light in km/s
-const double M = 7.9556e+36;    // mass of the black hole in kg
-
-const int HOUR = 3600;
-const int DAY = 24;
-const int YEAR = 365;
-
-const int SIZE_VECTOR = 3;
-
-const double X_BH = -16142282780211031640.09676999264;
-const double Y_BH = 118611250811694902698.78585427456;
-const double Z_BH = 209892887795241600000.0;
-const double Rad_to_Arc_sec = 206264.816;
 
 double operator * (const vector<double> &v1, const vector<double> &v2){
     double res = 0;
@@ -73,73 +60,7 @@ vector<double> operator + (const vector<double> &v1, const vector<double> &v2){
 }
 
 
-class Star
-{
-    // вектор для хранения всех позиций
-    vector<vector<double>> history;
 
-    vector<pair<double, double>> spherical_history;
-
-    // вектор для хранения последней записи в history
-    vector<double> prev_state;
-
-public:
-    Star(string name_file) {
-        if(read_file(name_file))
-        {
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    /**
-     * @brief read_file - функция чтения начальных данных из
-     * файла для звезды
-     * @param name_file - имя файла
-     * @return 0 в случае успешного чтения,
-     * -1 если файл невозможно открыть,
-     * -2 строка в файле некорректна
-     */
-    int read_file(const string &name_file)
-    {
-        string temp_line;
-        ifstream in_file(name_file);
-
-        if(in_file.is_open())
-        {
-            prev_state.resize(SIZE_VECTOR * 2);
-            int index = 0;
-            while(getline(in_file, temp_line))
-            {
-                try {
-                    prev_state[index++] = stod(temp_line);
-                } catch (std::invalid_argument const& ex) {
-                    std::cout << name_file << ": incorrect line " << index + 1 << "\n";
-                    return -2;
-                }
-
-            }
-        }
-        else
-            return -1;
-        in_file.close();
-        std::cout << name_file << " - correct)\n";
-        return 0;
-    }
-
-
-    void add_state_to_history(vector<double> &new_state) { history.push_back(new_state); }
-
-    vector<vector<double> > getHistory() const { return history; }
-
-    vector<double> getPrev_state() const { return prev_state; }
-
-    void setPrev_state(const vector<double> &newPrev_state) { prev_state = newPrev_state; }
-
-    vector<pair<double, double> > getSpherical_history() const { return spherical_history; }
-
-    void add_state_to_sph_history(pair<double, double> new_state) { spherical_history.push_back(new_state); }
-
-};
 
 
 class Simulation
@@ -312,16 +233,5 @@ public:
 };
 
 
-int main(int argc, char *argv[])
-{
-    QApplication a(argc, argv);
-    Star S2("s2.txt");
-    Star S38("s38.txt");
-    Star S55("s55.txt");
-    Simulation simulation(&S2, &S38, &S55, HOUR);
-    simulation.runSimulation(HOUR * DAY * YEAR * 20);
-    simulation.printRes();
 
-    return a.exec();
-}
 

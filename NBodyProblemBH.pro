@@ -1,4 +1,4 @@
-QT       += core gui datavisualization charts
+QT       += core gui charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,17 +10,13 @@ CONFIG += c++17
 
 SOURCES += \
     NBodyProblemBH.cpp \
-    Window_Decart_Graph.cpp \
-    Window_sph_graph.cpp \
-    mainwindow.cpp
+    window_sph_graph.cpp
 
 HEADERS += \
-    Window_Decart_Graph.hpp \
-    Window_sph_graph.hpp \
-    mainwindow.hpp
+    window_sph_graph.hpp
 
 FORMS += \
-    mainwindow.ui
+    window_sph_graph.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

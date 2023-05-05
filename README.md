@@ -5,6 +5,9 @@
 - 🔭 The File with direct task - NBodyProblemBH.cpp
 - 🔭 The class Qt responsible for the graph output - mainwindow.cpp
 - 🔭 Data - files with initial parameters for stars
+#### How to build project:
+- cd build
+- ./build.sh
 
 
 

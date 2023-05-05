@@ -1,15 +1,11 @@
-#include "Window_Decart_Graph.hpp"
-#include "Window_sph_graph.hpp"
-#include "mainwindow.hpp"
+#include "window_sph_graph.hpp"
 
-#include <Q3DScatter>
-#include <QtDataVisualization>
 #include <QApplication>
 #include <bits/stdc++.h>
+#include <QLineSeries>
 #include <QPointF>
 #include <fstream>
 
-using namespace QtDataVisualization;
 using namespace std;
 
 // constants
@@ -26,9 +22,7 @@ const int SIZE_VECTOR = 3;
 const double X_BH = -16142282780211031640.09676999264;
 const double Y_BH = 118611250811694902698.78585427456;
 const double Z_BH = 209892887795241600000.0;
-
-const double radian = 206264.816;
-
+const double Rad_to_Arc_sec = 206264.816;
 
 double operator * (const vector<double> &v1, const vector<double> &v2){
     double res = 0;
@@ -154,9 +148,6 @@ private:
     // вектор указателей на объекты класса Star
     vector<Star*> stars;
 
-    // окно для графика в декартовых координатах
-    Window_Decart_Graph *window_decart;
-
     // окно для графика в сферических координатах
     Window_Sph_Graph *window_sph;
 
@@ -171,7 +162,6 @@ public:
         : dt(dt)
     {
         stars = { S2, S38, S55 };
-        window_decart = new Window_Decart_Graph(nullptr);
         window_sph = new Window_Sph_Graph(nullptr);
     }
 
@@ -225,10 +215,6 @@ public:
         vector<double> pos = {current_state[0] * 1000, current_state[1] * 1000, current_state[2] * 1000};
         double r_pos = 0, r_pos2d = 0;
 
-//        pos[0] += 16525943605462975000.0;
-//        pos[1] += -121430337243901620000.0;
-//        pos[2] += -221014581858462400000.0;
-
         pos[0] += X_BH;
         pos[1] += Y_BH;
         pos[2] += Z_BH;
@@ -245,8 +231,11 @@ public:
         double Decl = asin(pos[2] / r_pos);
         double RA = asin(pos[1] / r_pos2d);
 
-        Decl -= -0.50628161876;
-        RA -= 4.84765199741;
+        Decl -= 1.05249165;
+        RA -= 1.4355335;
+
+        Decl *= Rad_to_Arc_sec;
+        RA *= Rad_to_Arc_sec;
 
         res = make_pair(Decl, RA);
 
@@ -300,17 +289,13 @@ public:
     {
         double min_data_x = 100.0, min_data_y = 100.0;
         double max_data_x = -100.0, max_data_y = -100.0;
-        vector<QScatterDataArray> data_decart(stars.size());
-        QLineSeries *first = new QLineSeries();
-        QLineSeries *second = new QLineSeries();
-        QLineSeries *third = new QLineSeries();
-        vector<QLineSeries*> data_sph = { first, second, third };
+        QtCharts::QLineSeries *first = new QtCharts::QLineSeries();
+        QtCharts::QLineSeries *second = new QtCharts::QLineSeries();
+        QtCharts::QLineSeries *third = new QtCharts::QLineSeries();
+        vector<QtCharts::QLineSeries*> data_sph = { first, second, third };
+
         for(size_t index = 0; index < stars.size(); index++)
         {
-            for(auto state : stars[index]->getHistory())
-            {
-                data_decart[index] << QVector3D(state[0], state[1], state[2]);
-            }
 
             for(auto state_sph : stars[index]->getSpherical_history())
             {
@@ -322,7 +307,6 @@ public:
                 *data_sph[index] << QPointF(state_sph.first, state_sph.second);
             }
         }
-        window_decart->printGraph(data_decart);
         window_sph->printGraph(first, second, third, min_data_x, min_data_y, max_data_x, max_data_y);
     }
 };

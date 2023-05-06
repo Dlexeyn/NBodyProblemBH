@@ -11,12 +11,16 @@ CONFIG += c++17
 SOURCES += \
     DirectNBodyProblemBH.cpp \
     InverseNBodyProblemBH.cpp \
-    Star.cpp \
+    Structures/Model.cpp \
+    Structures/SimulationVector.cpp \
+    Structures/Star.cpp \
     main.cpp \
     window_sph_graph.cpp
 
 HEADERS += \
-    Constants.h \
+    Options/Constants.h \
+    Structures/Model.hpp \
+    Structures/SimulationVector.hpp \
     window_sph_graph.hpp
 
 FORMS += \

@@ -1,9 +1,10 @@
 #include "window_sph_graph.hpp"
-#include "Constants.h"
-#include "Star.cpp"
+#include "Options/Constants.h"
+#include "Structures/Star.cpp"
+#include "Structures/SimulationVector.hpp"
 
 #include <QApplication>
-#include <bits/stdc++.h>
+#include <cmath>
 #include <QLineSeries>
 #include <QPointF>
 #include <fstream>
@@ -59,10 +60,6 @@ vector<double> operator + (const vector<double> &v1, const vector<double> &v2){
     return res;
 }
 
-
-
-
-
 class Simulation
 {
 private:
@@ -77,6 +74,8 @@ private:
 
     // временные значения для метода численного интегрирования
     vector<double> k1, k2, k3, k4;
+
+    //SimulationVector k1, k2, k3, k4;
 
 public:
     Simulation(Star *S2, Star *S38, Star *S55, double dt)

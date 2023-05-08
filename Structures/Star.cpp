@@ -81,19 +81,13 @@ public:
         out.close();
     }
 
+    vector<pair<double, double> > getSpherical_history() const {
+        return spherical_history;
+    }
 
-
-//    void add_state_to_history(vector<double> &new_state) { history.push_back(new_state); }
-
-//    vector<vector<double> > getHistory() const { return history; }
-
-//    vector<double> getPrev_state() const { return prev_state; }
-
-//    void setPrev_state(const vector<double> &newPrev_state) { prev_state = newPrev_state; }
-
-    vector<pair<double, double> > getSpherical_history() const { return spherical_history; }
-
-    void add_state_to_sph_history(pair<double, double> new_state) { spherical_history.push_back(new_state); }
+    void add_state_to_sph_history(pair<double, double> new_state) {
+        spherical_history.push_back(new_state);
+    }
 
     vector<SimulationVector> getHistory() const
     {

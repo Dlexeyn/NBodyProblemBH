@@ -21,19 +21,37 @@ std::vector<double> SimulationVector::getX_vector() const
     return X_vector;
 }
 
-Matrix &SimulationVector::getdF_dr_dv()
+Matrix SimulationVector::getDX_dB() const
 {
-    return dF_dr_dv;
+    return dX_dB;
 }
 
-void SimulationVector::setDF_dr_dv(const Matrix &newDF_dr_dv)
+void SimulationVector::setDX_dB(const Matrix &newDX_dB)
 {
-    dF_dr_dv = newDF_dr_dv;
+    dX_dB = newDX_dB;
+}
+
+Matrix SimulationVector::getDF_dX() const
+{
+    return dF_dX;
+}
+
+void SimulationVector::setDF_dX(const Matrix &newDF_dX)
+{
+    dF_dX = newDF_dX;
 }
 
 SimulationVector::SimulationVector()
 {
     X_vector.resize(SIZE_VECTOR * 2);
+
+
+    // dX_dB = E + 0-ой столбец
+    for (int i = 0; i < dX_dB.Get_sizeN(); i++)
+        for(int j = 0; j < dX_dB.Get_sizeM();j++){
+            if(i == j)
+                dX_dB.setElement(i, j, 1);
+        }
 }
 
 

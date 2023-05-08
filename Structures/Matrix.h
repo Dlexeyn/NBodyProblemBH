@@ -12,6 +12,8 @@ class Matrix {
 public:
     void setMatrix(const vector<vector<double>> &matrix);
 
+    void setElement(int y, int x, double value);
+
     Matrix(int sizeN, int sizeM);
 
     int Get_sizeN() {
@@ -69,7 +71,7 @@ public:
             }
             return Result;
         }
-
+        exit(1);
     }
 
     friend Matrix operator / (const Matrix &M, const double num){

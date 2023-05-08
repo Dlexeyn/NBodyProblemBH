@@ -16,6 +16,11 @@ void Matrix::setMatrix(const vector<vector<double>> &matrix) {
     Matrix::matrix = matrix;
 }
 
+void Matrix::setElement(int y, int x, double value)
+{
+    matrix[y][x] = value;
+}
+
 Matrix::Matrix(int sizeN, int sizeM) {
     this->sizeM = sizeM;
     this->sizeN = sizeN;

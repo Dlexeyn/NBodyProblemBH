@@ -24,8 +24,6 @@ private:
     double dt;
 
     // временные значения для метода численного интегрирования
-    //vector<double> k1, k2, k3, k4;
-
     SimulationVector k1, k2, k3, k4;
 
 public:
@@ -35,6 +33,43 @@ public:
         stars = { S2, S38, S55 };
         window_sph = new Window_Sph_Graph(nullptr);
     }
+
+
+    void calculateDF_dB(const vector<double> &X, const double &r_pos, Matrix &dF_dB)
+    {
+        //da/dM = - G r / |r| ^ 3
+        for(int i = 0; i < SIZE_VECTOR; i++)
+            dF_dB.setElement(3 + i, 6, -(X[i] * G) / pow(r_pos, 3));
+    }
+
+    Matrix calculateDF_dX(const vector<double> &X, const double &r_pos)
+    {
+        Matrix dF_dX = Matrix(6, 6);
+        for(int i = 3; i < dF_dX.Get_sizeN(); i++)
+        {
+            for(int j = 0; j < SIZE_VECTOR; j++)
+                dF_dX.setElement(i, j, calculateDA_dRn(X[j], r_pos));
+        }
+
+        for(int i = 0; i < SIZE_VECTOR; i++)
+        {
+            for(int j = 3; j < dF_dX.Get_sizeM(); j++)
+            {
+                if((j - 3) == i)
+                    dF_dX.setElement(i, j, 1);
+            }
+        }
+        return dF_dX;
+    }
+
+    double calculateDA_dRn(const double &x, const double &r_pos)
+    {
+        // calculate da_dr (x, y, z)
+        double denominator = pow(r_pos, 6);
+        double numerator = - G * M * (pow(r_pos, 3) - 3 * x * x * r_pos);
+        return numerator / denominator;
+    }
+
 
     /**
      * @brief equationPN - Функция правой части
@@ -73,6 +108,13 @@ public:
             answer.setElementX_vector(i, dt * accel[i - 3]);    // dv = a * dt
         }
 
+        Matrix dF_dB = Matrix(6, 7);
+        calculateDF_dB(state.getX_vector(), r_pos, dF_dB);
+
+        answer.setDF_dX(calculateDF_dX(state.getX_vector(), r_pos));
+
+        // dX_dB = dF_dB + dF_dX * dX_dB
+        answer.setDX_dB(dF_dB + answer.getDF_dX() * state.getDX_dB());
     }
 
     /**

@@ -16,6 +16,8 @@ public:
 
     void setX_vector(const std::vector<double> &newX_vector);
 
+    void clearX_vector();
+
     void setElementX_vector(int index, double value);
 
     std::vector<double> getX_vector() const;
@@ -32,11 +34,19 @@ public:
         return res;
     }
 
-    friend SimulationVector operator*(double num, const SimulationVector& V)
+    friend SimulationVector operator*(const double num, const SimulationVector& V)
     {
         SimulationVector res;
         res.setX_vector(num * V.getX_vector());
         res.setDF_dr_dv(num * V.dF_dr_dv);
+        return res;
+    }
+
+    friend SimulationVector operator/(const SimulationVector& V, const double num)
+    {
+        SimulationVector res;
+        res.setX_vector(V.getX_vector() / num);
+        res.setDF_dr_dv(V.dF_dr_dv / num);
         return res;
     }
 

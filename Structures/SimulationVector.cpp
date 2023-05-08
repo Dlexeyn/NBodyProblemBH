@@ -5,6 +5,12 @@ void SimulationVector::setX_vector(const std::vector<double> &newX_vector)
     X_vector = newX_vector;
 }
 
+void SimulationVector::clearX_vector()
+{
+    X_vector.clear();
+    X_vector.resize(SIZE_VECTOR * 2);
+}
+
 void SimulationVector::setElementX_vector(int index, double value)
 {
     X_vector[index] = value;

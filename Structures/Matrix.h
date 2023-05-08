@@ -72,6 +72,15 @@ public:
 
     }
 
+    friend Matrix operator / (const Matrix &M, const double num){
+        Matrix Result = Matrix(M.sizeN, M.sizeM);
+        for (int i = 0; i < Result.sizeN; i++)
+            for(int j = 0; j < Result.sizeM;j++){
+                Result.matrix[i][j] /= num;
+            }
+        return Result;
+    }
+
 };
 
 

@@ -24,8 +24,9 @@ private:
     double dt;
 
     // временные значения для метода численного интегрирования
-    vector<double> k1, k2, k3, k4;
+    //vector<double> k1, k2, k3, k4;
 
+    SimulationVector k1, k2, k3, k4;
 
 public:
     Simulation(Star *S2, Star *S38, Star *S55, double dt)
@@ -40,22 +41,21 @@ public:
      * @param state - вектор состояния
      * @param answer - следующий вектор состояния
      */
-    void equationPN(const vector<double> &state, vector<double> &answer)
+    void equationPN(const SimulationVector &state, SimulationVector &answer)
     {
         double r_pos = 0, r_speed = 0, prod_vectors = 0;
-        answer.clear();
-        answer.resize(SIZE_VECTOR * 2);
+        answer.clearX_vector();
         vector<double> accel(SIZE_VECTOR);
 
         for (int i = 0; i < SIZE_VECTOR; ++i) {
-            answer[i] = dt * state[i + SIZE_VECTOR];      // dr = v * dt
+            answer.setElementX_vector(i, dt * state.getX_vector()[i + SIZE_VECTOR]); // dr = v * dt
         }
 
         for(int i = 0; i < SIZE_VECTOR; i++)
         {
-            r_pos += pow(state[i], 2);
-            r_speed += pow(state[i + SIZE_VECTOR], 2);
-            prod_vectors += state[i] * state[SIZE_VECTOR + i];
+            r_pos += pow(state.getX_vector()[i], 2);
+            r_speed += pow(state.getX_vector()[i + SIZE_VECTOR], 2);
+            prod_vectors += state.getX_vector()[i] * state.getX_vector()[SIZE_VECTOR + i];
         }
         r_pos = sqrt(r_pos);
         r_speed = sqrt(r_speed);
@@ -65,11 +65,12 @@ public:
 
         for(int i = 0; i < SIZE_VECTOR; i++)
         {
-            accel[i] = Newton_factor * (prod * state[i] - 4 * state[i + 3] * prod_vectors);
+            accel[i] = Newton_factor * (prod * state.getX_vector()[i]
+                                        - 4 * state.getX_vector()[i + 3] * prod_vectors);
         }
 
         for (int i = SIZE_VECTOR; i < SIZE_VECTOR * 2; ++i) {
-            answer[i] = dt * accel[i - 3];      // dv = a * dt
+            answer.setElementX_vector(i, dt * accel[i - 3]);    // dv = a * dt
         }
 
     }
@@ -121,12 +122,12 @@ public:
     void RK4(const SimulationVector &state, SimulationVector &res)
     {
 
-        equationPN(state.getX_vector(), k1);
-        equationPN(state.getX_vector()  + (k1 * 0.5), k2);
-        equationPN(state.getX_vector() + (k2 * 0.5), k3);
-        equationPN(state.getX_vector() + k3, k4);
+        equationPN(state, k1);
+        equationPN(state + (0.5 * k1), k2);
+        equationPN(state + (0.5 * k2), k3);
+        equationPN(state + k3, k4);
 
-        res.setX_vector(state.getX_vector() + (k1 + k2 * 2 + k3 * 2 + k4) / 6);
+        res = state + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
     }
 
     /**
@@ -138,7 +139,6 @@ public:
         cout << "Simulation is running...\n";
         int steps = int(time / dt);
 
-        //vector<vector<double>> stars_result(stars.size());
         vector<SimulationVector> stars_result(stars.size());
 
         while(steps > 0)

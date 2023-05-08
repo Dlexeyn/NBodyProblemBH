@@ -43,7 +43,7 @@ public:
         else
             exit(1);
     }
-
+    Matrix Cholesky_decomposition(Matrix A);
 
     friend Matrix operator * (const double num, const Matrix &M){
         Matrix Result = Matrix(M.sizeN, M.sizeM);
@@ -72,15 +72,6 @@ public:
             return Result;
         }
         exit(1);
-    }
-
-    friend Matrix operator / (const Matrix &M, const double num){
-        Matrix Result = Matrix(M.sizeN, M.sizeM);
-        for (int i = 0; i < Result.sizeN; i++)
-            for(int j = 0; j < Result.sizeM;j++){
-                Result.matrix[i][j] /= num;
-            }
-        return Result;
     }
 
 };

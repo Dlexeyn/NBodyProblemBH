@@ -1,11 +1,9 @@
-//
-// Created by akimfeopentov on 06.05.23.
-//
-#include <bits/stdc++.h>
-using namespace std;
 #ifndef UNTITLED_MATRIX_H
 #define UNTITLED_MATRIX_H
-
+#include <vector>
+#include <stdio.h>
+#include <stdlib.h>
+using namespace std;
 
 class Matrix {
     int sizeN;
@@ -14,11 +12,7 @@ class Matrix {
 public:
     void setMatrix(const vector<vector<double>> &matrix);
 
-public:
-    Matrix(int sizeN = 0, int sizeM = 0) {
-        this->sizeM = sizeM;
-        this->sizeN = sizeN;
-    }
+    Matrix(int sizeN, int sizeM);
 
     int Get_sizeN() {
         return this->sizeN;
@@ -33,9 +27,31 @@ public:
     }
 
     void Transposition();
-    Matrix operator+(const Matrix M1);
-    Matrix operator-(const Matrix M1);
-    Matrix operator*(const double c);
+
+    friend Matrix operator + (const Matrix &M1, const Matrix &M2)
+    {
+        if (M2.sizeN == M1.sizeN && M2.sizeM == M1.sizeM) {
+            Matrix Result = Matrix(M1.sizeN, M2.sizeM);
+            for (int i = 0; i < Result.sizeN; i++)
+                for(int j = 0; j < Result.sizeM;j++){
+                    Result.matrix[i][j] = M1.matrix[i][j] + M2.matrix[i][j];
+                }
+            return Result;
+        }
+        else
+            exit(1);
+    }
+
+
+    friend Matrix operator * (const double num, const Matrix &M){
+        Matrix Result = Matrix(M.sizeN, M.sizeM);
+        for (int i = 0; i < Result.sizeN; i++)
+            for(int j = 0; j < Result.sizeM;j++){
+                Result.matrix[i][j] *= num;
+            }
+        return Result;
+    }
+
     friend Matrix operator * (const Matrix &M1, const Matrix &M2){
         if(M1.sizeM == M2.sizeN){
             Matrix Result = Matrix(M1.sizeN, M2.sizeM);

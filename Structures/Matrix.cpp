@@ -1,6 +1,3 @@
-//
-// Created by akimfeopentov on 06.05.23.
-//
 
 #include "Matrix.h"
 
@@ -15,37 +12,18 @@ void Matrix::Transposition() {
     }
 }
 
-Matrix Matrix::operator+(const Matrix M1) {
-    if (sizeN == M1.sizeN && sizeM == M1.sizeM) {
-        for (int i = 0; i < sizeN; i++)
-            for(int j = 0; j < sizeM;j++){
-                matrix[i][j]+=M1.matrix[i][j];
-            }
-    }
-    else
-        exit(1);
-    return *this;
-}
-Matrix Matrix::operator-(const Matrix M1) {
-    if (sizeN == M1.sizeN && sizeM == M1.sizeM) {
-        for (int i = 0; i < sizeN; i++)
-            for(int j = 0; j < sizeM;j++){
-                matrix[i][j]-=M1.matrix[i][j];
-            }
-    }
-    else
-        exit(1);
-    return *this;
-}
-
 void Matrix::setMatrix(const vector<vector<double>> &matrix) {
     Matrix::matrix = matrix;
 }
 
-Matrix Matrix::operator*(const double c) {
-    for (int i = 0; i < sizeN; i++)
-        for(int j = 0; j < sizeM;j++){
-            matrix[i][j]*=c;
-        }
-    return *this;
+Matrix::Matrix(int sizeN, int sizeM) {
+    this->sizeM = sizeM;
+    this->sizeN = sizeN;
+
+    matrix.resize(sizeN);
+    for(auto &line : matrix)
+    {
+        line.resize(sizeM);
+        fill(line.begin(), line.end(), 0);
+    }
 }

@@ -1,4 +1,5 @@
 #include "Options/Constants.h"
+#include "SimulationVector.hpp"
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -10,12 +11,12 @@ using namespace std;
 class Star
 {
     // вектор для хранения всех позиций
-    vector<vector<double>> history;
+    vector<SimulationVector> history;
 
     vector<pair<double, double>> spherical_history;
 
     // вектор для хранения последней записи в history
-    vector<double> prev_state;
+    SimulationVector prev_state;
 
 public:
     Star(string name_file) {
@@ -40,12 +41,12 @@ public:
 
         if(in_file.is_open())
         {
-            prev_state.resize(SIZE_VECTOR * 2);
+            prev_state.getX_vector().resize(SIZE_VECTOR * 2);
             int index = 0;
             while(getline(in_file, temp_line))
             {
                 try {
-                    prev_state[index++] = stod(temp_line);
+                    prev_state.setElementX_vector(index++, stod(temp_line));
                 } catch (std::invalid_argument const& ex) {
                     std::cout << name_file << ": incorrect line " << index + 1 << "\n";
                     return -2;
@@ -68,11 +69,12 @@ public:
         {
             for(auto state : history)
             {
-                for(size_t index = 0; index < state.size() - 1; index++)
+                auto X = state.getX_vector();
+                for(size_t index = 0; index < X.size() - 1; index++)
                 {
-                    out << state[index] << " ";
+                    out << X[index] << " ";
                 }
-                out << state.back() << "\n";
+                out << X.back() << "\n";
             }
         }
 
@@ -80,16 +82,46 @@ public:
     }
 
 
-    void add_state_to_history(vector<double> &new_state) { history.push_back(new_state); }
 
-    vector<vector<double> > getHistory() const { return history; }
+//    void add_state_to_history(vector<double> &new_state) { history.push_back(new_state); }
 
-    vector<double> getPrev_state() const { return prev_state; }
+//    vector<vector<double> > getHistory() const { return history; }
 
-    void setPrev_state(const vector<double> &newPrev_state) { prev_state = newPrev_state; }
+//    vector<double> getPrev_state() const { return prev_state; }
+
+//    void setPrev_state(const vector<double> &newPrev_state) { prev_state = newPrev_state; }
 
     vector<pair<double, double> > getSpherical_history() const { return spherical_history; }
 
     void add_state_to_sph_history(pair<double, double> new_state) { spherical_history.push_back(new_state); }
 
+    vector<SimulationVector> getHistory() const
+    {
+        return history;
+    }
+
+    void add_state_to_history(SimulationVector &new_state)
+    {
+        history.push_back(new_state);
+    }
+
+    void setPrev_state(const SimulationVector &newPrev_state)
+    {
+        prev_state = newPrev_state;
+    }
+
+    SimulationVector getPrev_state() const
+    {
+        return prev_state;
+    }
 };
+
+
+
+
+
+
+
+
+
+

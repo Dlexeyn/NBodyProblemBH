@@ -11,55 +11,6 @@
 
 using namespace std;
 
-
-double operator * (const vector<double> &v1, const vector<double> &v2){
-    double res = 0;
-    for (size_t i = 0; i < v1.size(); i++){
-        res += v1[i] * v2[i];
-    }
-    return res;
-}
-
-vector<double> operator * (const double d, const vector<double> &v1){
-    vector<double> res(v1.size());
-    for (size_t i = 0; i < v1.size(); i++){
-        res[i] = v1[i] * d;
-    }
-    return res;
-}
-
-vector<double> operator * (const vector<double> &v1, const double d){
-    vector<double> res(v1.size());
-    for (size_t i = 0; i < v1.size(); i++){
-        res[i] = v1[i] * d;
-    }
-    return res;
-}
-
-vector<double> operator / (const vector<double> &v1, const double d){
-    vector<double> res(v1.size());
-    for (size_t i = 0; i < v1.size(); i++){
-        res[i] = v1[i] / d;
-    }
-    return res;
-}
-
-vector<double> operator - (const vector<double> &v1, const vector<double> &v2){
-    vector<double> res(v1.size());
-    for (size_t i = 0; i < v1.size(); i++){
-        res[i] = v1[i] - v2[i];
-    }
-    return res;
-}
-
-vector<double> operator + (const vector<double> &v1, const vector<double> &v2){
-    vector<double> res(v1.size());
-    for (size_t i = 0; i < v1.size(); i++){
-        res[i] = v1[i] + v2[i];
-    }
-    return res;
-}
-
 class Simulation
 {
 private:
@@ -75,7 +26,6 @@ private:
     // временные значения для метода численного интегрирования
     vector<double> k1, k2, k3, k4;
 
-    //SimulationVector k1, k2, k3, k4;
 
 public:
     Simulation(Star *S2, Star *S38, Star *S55, double dt)
@@ -132,7 +82,8 @@ public:
     pair<double,double> translate_to_spherical(const vector<double> &current_state)
     {
         pair<double, double> res;
-        vector<double> pos = {current_state[0] * 1000, current_state[1] * 1000, current_state[2] * 1000};
+        vector<double> pos = {current_state[0] * 1000, current_state[1] * 1000,
+                              current_state[2] * 1000};
         double r_pos = 0, r_pos2d = 0;
 
         pos[0] += X_BH;
@@ -162,20 +113,20 @@ public:
         return res;
     }
 
-    //
     /**
      * @brief RK4 - Классический метод Рунге-Кутты
      * @param state - вектор аргументов с предыдущего шага
      * @return - вектор значений в следующей точке
      */
-    void RK4(const vector<double> &state, vector<double> &res)
+    void RK4(const SimulationVector &state, SimulationVector &res)
     {
-        equationPN(state, k1);
-        equationPN(state + (k1 * 0.5), k2);
-        equationPN(state + (k2 * 0.5), k3);
-        equationPN(state + k3, k4);
 
-        res = state + (k1 + k2 * 2 + k3 * 2 + k4) / 6;
+        equationPN(state.getX_vector(), k1);
+        equationPN(state.getX_vector()  + (k1 * 0.5), k2);
+        equationPN(state.getX_vector() + (k2 * 0.5), k3);
+        equationPN(state.getX_vector() + k3, k4);
+
+        res.setX_vector(state.getX_vector() + (k1 + k2 * 2 + k3 * 2 + k4) / 6);
     }
 
     /**
@@ -187,15 +138,17 @@ public:
         cout << "Simulation is running...\n";
         int steps = int(time / dt);
 
-        vector<vector<double>> stars_result(stars.size());
+        //vector<vector<double>> stars_result(stars.size());
+        vector<SimulationVector> stars_result(stars.size());
 
         while(steps > 0)
         {
             for(size_t index = 0; index < stars.size(); index++)
             {
                 RK4(stars[index]->getPrev_state(), stars_result[index]);
+
                 stars[index]->add_state_to_history(stars_result[index]);
-                stars[index]->add_state_to_sph_history(translate_to_spherical(stars_result[index]));
+                stars[index]->add_state_to_sph_history(translate_to_spherical(stars_result[index].getX_vector()));
                 stars[index]->setPrev_state(stars_result[index]);
             }
             steps--;

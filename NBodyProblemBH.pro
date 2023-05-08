@@ -9,11 +9,12 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    DirectNBodyProblemBH.cpp \
-    InverseNBodyProblemBH.cpp \
+    NBodyProblemBHSolver.cpp \
     Structures/Model.cpp \
     Structures/SimulationVector.cpp \
     Structures/Star.cpp \
+    Structures/Matrix.cpp \
+    Structures/VectorsOperations.cpp \
     main.cpp \
     window_sph_graph.cpp
 
@@ -21,6 +22,8 @@ HEADERS += \
     Options/Constants.h \
     Structures/Model.hpp \
     Structures/SimulationVector.hpp \
+    Structures/Matrix.h \
+    Structures/VectorsOperations.hpp \
     window_sph_graph.hpp
 
 FORMS += \

@@ -37,7 +37,7 @@ Matrix Matrix::Cholesky_decomposition(Matrix A)
     Matrix L(A.sizeN, A.sizeM);
     if (L.sizeN != L.sizeM)
     {
-        std::cout << "Error :: Not square matrix in Cholesky_decomposition!" << std::endl;
+        cout << "Error: Cholesky_decomposition\n";
         return L;
     }
     for (int i = 0; i < A.sizeN; i++)
@@ -46,12 +46,12 @@ Matrix Matrix::Cholesky_decomposition(Matrix A)
         {
             double sum = 0;
             for (int k = 0; k < j; k++)
-                sum += L[i][k] * L[j][k];
+                sum += L.matrix[i][k] * L.matrix[j][k];
 
             if (i == j)
-                L[i][j] = std::sqrt(A[i][i] - sum);
+                L.matrix[i][j] = sqrt(A.matrix[i][i] - sum);
             else
-                L[i][j] = (1.0 / L[j][j] * (A[i][j] - sum));
+                L.matrix[i][j] = (1.0 / L.matrix[j][j] * (A.matrix[i][j] - sum));
         }
     }
     return L;

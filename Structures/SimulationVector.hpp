@@ -9,7 +9,7 @@
 class SimulationVector
 {
     std::vector<double> X_vector;
-    //Matrix dF_dr_dv = Matrix(6, 6);
+
     Matrix dX_dB = Matrix(6, 7);
 
     Matrix dF_dX = Matrix(6, 6);

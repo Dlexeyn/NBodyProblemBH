@@ -1,4 +1,4 @@
-#include "DirectNBodyProblemBH.cpp"
+#include "NBodyProblemBHSolver.cpp"
 #include "InverseNBodyProblemBH.cpp"
 #include <QApplication>
 

@@ -11,55 +11,6 @@
 
 using namespace std;
 
-
-double operator * (const vector<double> &v1, const vector<double> &v2){
-    double res = 0;
-    for (size_t i = 0; i < v1.size(); i++){
-        res += v1[i] * v2[i];
-    }
-    return res;
-}
-
-vector<double> operator * (const double d, const vector<double> &v1){
-    vector<double> res(v1.size());
-    for (size_t i = 0; i < v1.size(); i++){
-        res[i] = v1[i] * d;
-    }
-    return res;
-}
-
-vector<double> operator * (const vector<double> &v1, const double d){
-    vector<double> res(v1.size());
-    for (size_t i = 0; i < v1.size(); i++){
-        res[i] = v1[i] * d;
-    }
-    return res;
-}
-
-vector<double> operator / (const vector<double> &v1, const double d){
-    vector<double> res(v1.size());
-    for (size_t i = 0; i < v1.size(); i++){
-        res[i] = v1[i] / d;
-    }
-    return res;
-}
-
-vector<double> operator - (const vector<double> &v1, const vector<double> &v2){
-    vector<double> res(v1.size());
-    for (size_t i = 0; i < v1.size(); i++){
-        res[i] = v1[i] - v2[i];
-    }
-    return res;
-}
-
-vector<double> operator + (const vector<double> &v1, const vector<double> &v2){
-    vector<double> res(v1.size());
-    for (size_t i = 0; i < v1.size(); i++){
-        res[i] = v1[i] + v2[i];
-    }
-    return res;
-}
-
 class Simulation
 {
 private:
@@ -73,9 +24,7 @@ private:
     double dt;
 
     // временные значения для метода численного интегрирования
-    vector<double> k1, k2, k3, k4;
-
-    //SimulationVector k1, k2, k3, k4;
+    SimulationVector k1, k2, k3, k4;
 
 public:
     Simulation(Star *S2, Star *S38, Star *S55, double dt)
@@ -85,27 +34,63 @@ public:
         window_sph = new Window_Sph_Graph(nullptr);
     }
 
+
+    void calculateDF_dB(const vector<double> &X, const double &r_pos, Matrix &dF_dB)
+    {
+        //da/dM = - G r / |r| ^ 3
+        for(int i = 0; i < SIZE_VECTOR; i++)
+            dF_dB.setElement(3 + i, 6, -(X[i] * G) / pow(r_pos, 3));
+    }
+
+    Matrix calculateDF_dX(const vector<double> &X, const double &r_pos)
+    {
+        Matrix dF_dX = Matrix(6, 6);
+        for(int i = 3; i < dF_dX.Get_sizeN(); i++)
+        {
+            for(int j = 0; j < SIZE_VECTOR; j++)
+                dF_dX.setElement(i, j, calculateDA_dRn(X[j], r_pos));
+        }
+
+        for(int i = 0; i < SIZE_VECTOR; i++)
+        {
+            for(int j = 3; j < dF_dX.Get_sizeM(); j++)
+            {
+                if((j - 3) == i)
+                    dF_dX.setElement(i, j, 1);
+            }
+        }
+        return dF_dX;
+    }
+
+    double calculateDA_dRn(const double &x, const double &r_pos)
+    {
+        // calculate da_dr (x, y, z)
+        double denominator = pow(r_pos, 6);
+        double numerator = - G * M * (pow(r_pos, 3) - 3 * x * x * r_pos);
+        return numerator / denominator;
+    }
+
+
     /**
      * @brief equationPN - Функция правой части
      * @param state - вектор состояния
      * @param answer - следующий вектор состояния
      */
-    void equationPN(const vector<double> &state, vector<double> &answer)
+    void equationPN(const SimulationVector &state, SimulationVector &answer)
     {
         double r_pos = 0, r_speed = 0, prod_vectors = 0;
-        answer.clear();
-        answer.resize(SIZE_VECTOR * 2);
+        answer.clearX_vector();
         vector<double> accel(SIZE_VECTOR);
 
         for (int i = 0; i < SIZE_VECTOR; ++i) {
-            answer[i] = dt * state[i + SIZE_VECTOR];      // dr = v * dt
+            answer.setElementX_vector(i, dt * state.getX_vector()[i + SIZE_VECTOR]); // dr = v * dt
         }
 
         for(int i = 0; i < SIZE_VECTOR; i++)
         {
-            r_pos += pow(state[i], 2);
-            r_speed += pow(state[i + SIZE_VECTOR], 2);
-            prod_vectors += state[i] * state[SIZE_VECTOR + i];
+            r_pos += pow(state.getX_vector()[i], 2);
+            r_speed += pow(state.getX_vector()[i + SIZE_VECTOR], 2);
+            prod_vectors += state.getX_vector()[i] * state.getX_vector()[SIZE_VECTOR + i];
         }
         r_pos = sqrt(r_pos);
         r_speed = sqrt(r_speed);
@@ -115,13 +100,21 @@ public:
 
         for(int i = 0; i < SIZE_VECTOR; i++)
         {
-            accel[i] = Newton_factor * (prod * state[i] - 4 * state[i + 3] * prod_vectors);
+            accel[i] = Newton_factor * (prod * state.getX_vector()[i]
+                                        - 4 * state.getX_vector()[i + 3] * prod_vectors);
         }
 
         for (int i = SIZE_VECTOR; i < SIZE_VECTOR * 2; ++i) {
-            answer[i] = dt * accel[i - 3];      // dv = a * dt
+            answer.setElementX_vector(i, dt * accel[i - 3]);    // dv = a * dt
         }
 
+        Matrix dF_dB = Matrix(6, 7);
+        calculateDF_dB(state.getX_vector(), r_pos, dF_dB);
+
+        answer.setDF_dX(calculateDF_dX(state.getX_vector(), r_pos));
+
+        // dX_dB = dF_dB + dF_dX * dX_dB
+        answer.setDX_dB(dF_dB + answer.getDF_dX() * state.getDX_dB());
     }
 
     /**
@@ -132,7 +125,8 @@ public:
     pair<double,double> translate_to_spherical(const vector<double> &current_state)
     {
         pair<double, double> res;
-        vector<double> pos = {current_state[0] * 1000, current_state[1] * 1000, current_state[2] * 1000};
+        vector<double> pos = {current_state[0] * 1000, current_state[1] * 1000,
+                              current_state[2] * 1000};
         double r_pos = 0, r_pos2d = 0;
 
         pos[0] += X_BH;
@@ -162,20 +156,20 @@ public:
         return res;
     }
 
-    //
     /**
      * @brief RK4 - Классический метод Рунге-Кутты
      * @param state - вектор аргументов с предыдущего шага
      * @return - вектор значений в следующей точке
      */
-    void RK4(const vector<double> &state, vector<double> &res)
+    void RK4(const SimulationVector &state, SimulationVector &res)
     {
+
         equationPN(state, k1);
-        equationPN(state + (k1 * 0.5), k2);
-        equationPN(state + (k2 * 0.5), k3);
+        equationPN(state + (0.5 * k1), k2);
+        equationPN(state + (0.5 * k2), k3);
         equationPN(state + k3, k4);
 
-        res = state + (k1 + k2 * 2 + k3 * 2 + k4) / 6;
+        res = state + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
     }
 
     /**
@@ -187,15 +181,16 @@ public:
         cout << "Simulation is running...\n";
         int steps = int(time / dt);
 
-        vector<vector<double>> stars_result(stars.size());
+        vector<SimulationVector> stars_result(stars.size());
 
         while(steps > 0)
         {
             for(size_t index = 0; index < stars.size(); index++)
             {
                 RK4(stars[index]->getPrev_state(), stars_result[index]);
+
                 stars[index]->add_state_to_history(stars_result[index]);
-                stars[index]->add_state_to_sph_history(translate_to_spherical(stars_result[index]));
+                stars[index]->add_state_to_sph_history(translate_to_spherical(stars_result[index].getX_vector()));
                 stars[index]->setPrev_state(stars_result[index]);
             }
             steps--;

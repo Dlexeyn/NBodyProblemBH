@@ -7,6 +7,7 @@
 #include <cmath>
 #include <QLineSeries>
 #include <QPointF>
+#include <vector>
 #include <fstream>
 
 using namespace std;

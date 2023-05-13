@@ -13,7 +13,8 @@ class Star
     // вектор для хранения всех позиций
     vector<SimulationVector> history;
 
-    vector<pair<double, double>> spherical_history;
+    vector<pair<double, double>> spherical_history_model;
+    vector<pair<double, pair<double,double>>> spherical_history_obs;
 
     // вектор для хранения последней записи в history
     SimulationVector prev_state;
@@ -60,7 +61,36 @@ public:
         std::cout << name_file << " - correct)\n";
         return 0;
     }
+    int readRA_Dcel_in_star(const string &name_file)
+    {
+        ofstream in(name_file);
+        if(in.is_open())
+        {
+            double curDate, curRA, curDecl;
+            int n;
+            in<<n;
+            spherical_history_obs.resize(n);
+            for(int i=0;i<n;i++){
+                in << curDate << curRA << curDecl;
+                spherical_history_obs[i].first=curDate;
+                spherical_history_obs[i].second.first=curRA;
+                spherical_history_obs[i].second.second=curDecl;
+            }
+            for(int i=1;i<n;i++){
+                spherical_history_obs[i].first-spherical_history_obs[0].first;
+            }
+            spherical_history_obs[0].first=0;
+        }
+        else
+            return -1;
+        in.close();
+        std::cout << name_file << " - correct)\n";
+        return 0;
+    }
 
+    int main(){
+        return 0;
+    }
     void saveHistoryToFile(string nameFile)
     {
         ofstream out(nameFile);
@@ -81,12 +111,15 @@ public:
         out.close();
     }
 
-    vector<pair<double, double> > getSpherical_history() const {
-        return spherical_history;
+    vector<pair<double, double> > getSpherical_history_model() const {
+        return spherical_history_model;
+    }
+    vector<pair<double, pair<double,double>>> getSpherical_history_obs()const{
+        return spherical_history_obs;
     }
 
     void add_state_to_sph_history(pair<double, double> new_state) {
-        spherical_history.push_back(new_state);
+        spherical_history_model.push_back(new_state);
     }
 
     vector<SimulationVector> getHistory() const

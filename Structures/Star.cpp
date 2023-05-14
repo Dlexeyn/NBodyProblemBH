@@ -12,12 +12,10 @@ class Star
 {
     // вектор для хранения всех позиций
     vector<SimulationVector> history;
-
     vector<pair<double, double>> spherical_history_model;
-
     vector<pair<double, pair<double,double>>> spherical_history_obs;
-
     // вектор для хранения последней записи в history
+    int index;
     SimulationVector prev_state;
 
 public:
@@ -62,6 +60,13 @@ public:
         std::cout << name_file << " - correct)\n";
         return 0;
     }
+    vector<int> findIndexModelValue(){
+        vector<int> res;
+        res.resize(spherical_history_obs.size());
+        for(int i=0;i<spherical_history_obs.size();i++){
+            res[i]= (int(round(spherical_history_obs[i].first*365*24))+index)%spherical_history_model.size();
+        }
+    }
     int readRA_Dcel_in_star(const string &name_file)
     {
         ofstream in(name_file);
@@ -69,7 +74,7 @@ public:
         {
             double curDate, curRA, curDecl;
             int n;
-            in<<n;
+            in<<index<<n;
             spherical_history_obs.resize(n);
             for(int i=0;i<n;i++){
                 in << curDate << curRA << curDecl;
@@ -88,31 +93,20 @@ public:
         std::cout << name_file << " - correct)\n";
         return 0;
     }
-
-    int main(){
-        return 0;
-    }
     void saveHistoryToFile(string nameFile)
     {
-        ofstream out(nameFile);
-        if(out.is_open()){
-            for(auto state : spherical_history_model){
-                out<<state.first<<" "<<state.second <<"\n";
+        if(out.is_open())
+        {
+            for(auto state : history)
+            {
+                auto X = state.getX_vector();
+                for(size_t index = 0; index < X.size() - 1; index++)
+                {
+                    out << X[index] << " ";
+                }
+                out << X.back() << "\n";
             }
         }
-
-//        if(out.is_open())
-//        {
-//            for(auto state : history)
-//            {
-//                auto X = state.getX_vector();
-//                for(size_t index = 0; index < X.size() - 1; index++)
-//                {
-//                    out << X[index] << " ";
-//                }
-//                out << X.back() << "\n";
-//            }
-//        }
 
         out.close();
     }
@@ -148,13 +142,6 @@ public:
         return prev_state;
     }
 };
-
-
-
-
-
-
-
 
 
 

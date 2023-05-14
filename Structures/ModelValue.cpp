@@ -1,11 +1,10 @@
 #include "ModelValue.hpp"
 //#include "Star"
 
-//Model::Model()
-//{
+ModelValue::ModelValue()
+{
 
-//}
-
+}
 Matrix *ModelValue::getDRA_Decl_dR()
 {
     return &dRA_Decl_dR;
@@ -19,6 +18,21 @@ std::vector<double> ModelValue::getCortesian_pos() const
 std::vector<double> ModelValue::getSpeed() const
 {
     return speed;
+}
+
+void ModelValue::setRA(double newRA)
+{
+    RA = newRA;
+}
+
+void ModelValue::setDecl(double newDecl)
+{
+    Decl = newDecl;
+}
+
+void ModelValue::setDR_dB(const Matrix &newDR_dB)
+{
+    dR_dB = newDR_dB;
 }
 
 void ModelValue::VectorError(vector<vector<pair<double,double>>> &error){

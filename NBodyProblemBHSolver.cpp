@@ -2,6 +2,7 @@
 #include "Options/Constants.h"
 #include "Structures/Star.cpp"
 #include "Structures/SimulationVector.hpp"
+#include "Structures/ModelValue.hpp"
 
 #include <QApplication>
 #include <cmath>
@@ -17,6 +18,8 @@ class Simulation
 private:
     // вектор указателей на объекты класса Star
     vector<Star*> stars;
+
+    vector<vector<ModelValue>> values;
 
     // окно для графика в сферических координатах
     Window_Sph_Graph *window_sph;
@@ -195,6 +198,17 @@ public:
                 stars[index]->setPrev_state(stars_result[index]);
             }
             steps--;
+        }
+        fillModelValuseVector();
+
+    }
+
+    void fillModelValuseVector()
+    {
+        values.resize(stars.size());
+        for(size_t index = 0; index < stars.size(); index++)
+        {
+
         }
     }
 

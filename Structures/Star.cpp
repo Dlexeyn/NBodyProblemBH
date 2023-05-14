@@ -12,8 +12,11 @@ class Star
 {
     // вектор для хранения всех позиций
     vector<SimulationVector> history;
+
     vector<pair<double, double>> spherical_history_model;
+
     vector<pair<double, pair<double,double>>> spherical_history_obs;
+
     // вектор для хранения последней записи в history
     SimulationVector prev_state;
 

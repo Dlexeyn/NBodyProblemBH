@@ -23,6 +23,9 @@ public:
     Matrix *getDRA_Decl_dR();
     std::vector<double> getCortesian_pos() const;
     std::vector<double> getSpeed() const;
+    void setRA(double newRA);
+    void setDecl(double newDecl);
+    void setDR_dB(const Matrix &newDR_dB);
 };
 
 #endif // MODELVALUE_H

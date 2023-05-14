@@ -14,7 +14,16 @@ class Model
 //    Matrix dR_dB;
 public:
     Model();
-    void VectorError(vector<pair<double,double>> &error);
+    void VectorError(vector<vector<pair<double,double>>> &error);
+    Star GetS2(){
+        return s2;
+    }
+    Star GetS38(){
+        return s38;
+    }
+    Star GetS55(){
+        return s55;
+    }
 };
 
 #endif // MODEL_HPP

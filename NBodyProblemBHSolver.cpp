@@ -213,7 +213,7 @@ public:
         for(size_t index = 0; index < stars.size(); index++)
         {
 
-            for(auto state_sph : stars[index]->getSpherical_history())
+            for(auto state_sph : stars[index]->getSpherical_history_model())
             {
                 min_data_x = (min_data_x > state_sph.first) ? state_sph.first : min_data_x;
                 min_data_y = (min_data_y > state_sph.second) ? state_sph.second : min_data_y;

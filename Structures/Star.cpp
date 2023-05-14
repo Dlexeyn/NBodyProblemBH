@@ -12,16 +12,14 @@ class Star
 {
     // вектор для хранения всех позиций
     vector<SimulationVector> history;
-
     vector<pair<double, double>> spherical_history_model;
     vector<pair<double, pair<double,double>>> spherical_history_obs;
-
     // вектор для хранения последней записи в history
     SimulationVector prev_state;
 
 public:
     Star(string name_file) {
-        if(read_file(name_file))
+        if(read_file(name_file+".txt") and readRA_Dcel_in_star(name_file+"_RA_Decel.txt"))
         {
             exit(EXIT_FAILURE);
         }
@@ -94,19 +92,24 @@ public:
     void saveHistoryToFile(string nameFile)
     {
         ofstream out(nameFile);
-
-        if(out.is_open())
-        {
-            for(auto state : history)
-            {
-                auto X = state.getX_vector();
-                for(size_t index = 0; index < X.size() - 1; index++)
-                {
-                    out << X[index] << " ";
-                }
-                out << X.back() << "\n";
+        if(out.is_open()){
+            for(auto state : spherical_history_model){
+                out<<state.first<<" "<<state.second <<"\n";
             }
         }
+
+//        if(out.is_open())
+//        {
+//            for(auto state : history)
+//            {
+//                auto X = state.getX_vector();
+//                for(size_t index = 0; index < X.size() - 1; index++)
+//                {
+//                    out << X[index] << " ";
+//                }
+//                out << X.back() << "\n";
+//            }
+//        }
 
         out.close();
     }

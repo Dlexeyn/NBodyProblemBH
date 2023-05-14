@@ -10,7 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     NBodyProblemBHSolver.cpp \
-    Structures/Model.cpp \
+    Structures/ModelValue.cpp \
     Structures/SimulationVector.cpp \
     Structures/Star.cpp \
     Structures/Matrix.cpp \
@@ -20,7 +20,7 @@ SOURCES += \
 
 HEADERS += \
     Options/Constants.h \
-    Structures/Model.hpp \
+    Structures/ModelValue.hpp \
     Structures/SimulationVector.hpp \
     Structures/Matrix.h \
     Structures/VectorsOperations.hpp \

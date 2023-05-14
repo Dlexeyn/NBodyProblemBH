@@ -6,6 +6,21 @@
 
 //}
 
+Matrix *ModelValue::getDRA_Decl_dR()
+{
+    return &dRA_Decl_dR;
+}
+
+std::vector<double> ModelValue::getCortesian_pos() const
+{
+    return cortesian_pos;
+}
+
+std::vector<double> ModelValue::getSpeed() const
+{
+    return speed;
+}
+
 void ModelValue::VectorError(vector<vector<pair<double,double>>> &error){
 //    error.clear();
 //    error.resize(3);

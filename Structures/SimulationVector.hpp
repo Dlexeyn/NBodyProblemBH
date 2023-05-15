@@ -1,13 +1,12 @@
 #ifndef SIMULATIONVECTOR_HPP
 #define SIMULATIONVECTOR_HPP
 
-#include <vector>
+#include "Matrix.h"
 #include "Options/Constants.h"
 #include "VectorsOperations.hpp"
-#include "Matrix.h"
+#include <vector>
 
-class SimulationVector
-{
+class SimulationVector {
     std::vector<double> X_vector;
 
     Matrix dX_dB = Matrix(6, 7);
@@ -17,7 +16,7 @@ class SimulationVector
 public:
     SimulationVector();
 
-    void setX_vector(const std::vector<double> &newX_vector);
+    void setX_vector(const std::vector<double>& newX_vector);
 
     void clearX_vector();
 
@@ -54,12 +53,11 @@ public:
 
     Matrix getDX_dB() const;
 
-    void setDX_dB(const Matrix &newDX_dB);
+    void setDX_dB(const Matrix& newDX_dB);
 
     Matrix getDF_dX() const;
 
-    void setDF_dX(const Matrix &newDF_dX);
-
+    void setDF_dX(const Matrix& newDF_dX);
 };
 
 #endif // SIMULATIONVECTOR_HPP

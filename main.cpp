@@ -1,9 +1,8 @@
-#include "NBodyProblemBHSolver.cpp"
 #include "InverseNBodyProblemBH.cpp"
+#include "NBodyProblemBHSolver.cpp"
 #include <QApplication>
 
-
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
     Star S2("s2");

@@ -22,7 +22,9 @@ public:
     explicit Window_Sph_Graph(QWidget *parent = nullptr);
     ~Window_Sph_Graph();
 
-    void printGraph(QLineSeries *firstStar, QLineSeries *secondStar, QLineSeries *thirdStar, double &min_x, double &min_y, double &max_x, double &max_y);
+    void printGraph(QLineSeries *firstStar, QLineSeries *secondStar, QLineSeries *thirdStar,
+                    double &min_x, double &min_y,
+                    double &max_x, double &max_y);
 
 
 private:

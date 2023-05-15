@@ -2,6 +2,7 @@
 #include "SimulationVector.hpp"
 #include <fstream>
 #include <iostream>
+#include <queue>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -59,12 +60,11 @@ public:
         return 0;
     }
 
-    vector<int> findIndexModelValue()
+    priority_queue<int, vector<int>, greater<int>> findIndexModelValue()
     {
-        vector<int> res;
-        res.resize(spherical_history_obs.size());
+        priority_queue<int, vector<int>, greater<int>> res;
         for (size_t i = 0; i < spherical_history_obs.size(); i++) {
-            res[i] = (int(round(spherical_history_obs[i].first * 365 * 24)) + index) % Model_Size;
+            res.push((int(round(spherical_history_obs[i].first * 365 * 24)) + index) % Model_Size);
         }
         return res;
     }

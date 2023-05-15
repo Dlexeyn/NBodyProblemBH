@@ -1,15 +1,16 @@
 
 #include "Matrix.h"
 
-void Matrix::Transposition() {
+Matrix Matrix::Transposition() {
     double t;
+    Matrix new_matrix(sizeM,sizeN);
     for (int i = 0; i < sizeN; ++i) {
         for (int j = i; j < sizeM; ++j) {
-            t = matrix[i][j];
-            matrix[i][j] = matrix[j][i];
-            matrix[j][i] = t;
+            new_matrix.Get_matrix()[i][j] = matrix[j][i];
+            new_matrix.Get_matrix()[j][i] = matrix[i][j];
         }
     }
+    return new_matrix;
 }
 
 void Matrix::setMatrix(const vector<vector<double>> &matrix) {

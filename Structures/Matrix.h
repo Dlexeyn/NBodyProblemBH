@@ -35,7 +35,7 @@ public:
         return this->matrix;
     }
 
-    void Transposition();
+    Matrix Transposition();
 
     friend Matrix operator+(const Matrix& M1, const Matrix& M2)
     {

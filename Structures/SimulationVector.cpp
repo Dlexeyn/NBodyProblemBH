@@ -1,6 +1,6 @@
 #include "SimulationVector.hpp"
 
-void SimulationVector::setX_vector(const std::vector<double> &newX_vector)
+void SimulationVector::setX_vector(const std::vector<double>& newX_vector)
 {
     X_vector = newX_vector;
 }
@@ -26,7 +26,7 @@ Matrix SimulationVector::getDX_dB() const
     return dX_dB;
 }
 
-void SimulationVector::setDX_dB(const Matrix &newDX_dB)
+void SimulationVector::setDX_dB(const Matrix& newDX_dB)
 {
     dX_dB = newDX_dB;
 }
@@ -36,7 +36,7 @@ Matrix SimulationVector::getDF_dX() const
     return dF_dX;
 }
 
-void SimulationVector::setDF_dX(const Matrix &newDF_dX)
+void SimulationVector::setDF_dX(const Matrix& newDF_dX)
 {
     dF_dX = newDF_dX;
 }
@@ -45,15 +45,10 @@ SimulationVector::SimulationVector()
 {
     X_vector.resize(SIZE_VECTOR * 2);
 
-
     // dX_dB = E + 0-ой столбец
     for (int i = 0; i < dX_dB.Get_sizeN(); i++)
-        for(int j = 0; j < dX_dB.Get_sizeM();j++){
-            if(i == j)
+        for (int j = 0; j < dX_dB.Get_sizeM(); j++) {
+            if (i == j)
                 dX_dB.setElement(i, j, 1);
         }
 }
-
-
-
-

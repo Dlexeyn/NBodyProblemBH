@@ -1,24 +1,26 @@
-#include "window_sph_graph.hpp"
 #include "Options/Constants.h"
-#include "Structures/Star.cpp"
+#include "Structures/ModelValue.hpp"
 #include "Structures/SimulationVector.hpp"
+#include "window_sph_graph.hpp"
 
 #include <QApplication>
-#include <cmath>
 #include <QLineSeries>
 #include <QPointF>
+#include <cmath>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
-class Simulation
-{
+class Simulation {
 private:
     // вектор указателей на объекты класса Star
     vector<Star*> stars;
 
+    vector<vector<ModelValue>> values;
+
     // окно для графика в сферических координатах
-    Window_Sph_Graph *window_sph;
+    Window_Sph_Graph* window_sph;
 
     // шаг для метода численного интегрирования
     double dt;
@@ -27,56 +29,51 @@ private:
     SimulationVector k1, k2, k3, k4;
 
 public:
-    Simulation(Star *S2, Star *S38, Star *S55, double dt)
+    Simulation(Star* S2, Star* S38, Star* S55, double dt)
         : dt(dt)
     {
         stars = { S2, S38, S55 };
         window_sph = new Window_Sph_Graph(nullptr);
     }
 
-
-    void calculateDF_dB(const vector<double> &X, const double &r_pos, Matrix &dF_dB)
+    void calculateDF_dB(const vector<double>& X, const double& r_pos, Matrix& dF_dB)
     {
-        //da/dM = - G r / |r| ^ 3
-        for(int i = 0; i < SIZE_VECTOR; i++)
+        // da/dM = - G r / |r| ^ 3
+        for (int i = 0; i < SIZE_VECTOR; i++)
             dF_dB.setElement(3 + i, 6, -(X[i] * G) / pow(r_pos, 3));
     }
 
-    Matrix calculateDF_dX(const vector<double> &X, const double &r_pos)
+    Matrix calculateDF_dX(const vector<double>& X, const double& r_pos)
     {
         Matrix dF_dX = Matrix(6, 6);
-        for(int i = 3; i < dF_dX.Get_sizeN(); i++)
-        {
-            for(int j = 0; j < SIZE_VECTOR; j++)
+        for (int i = 3; i < dF_dX.Get_sizeN(); i++) {
+            for (int j = 0; j < SIZE_VECTOR; j++)
                 dF_dX.setElement(i, j, calculateDA_dRn(X[j], r_pos));
         }
 
-        for(int i = 0; i < SIZE_VECTOR; i++)
-        {
-            for(int j = 3; j < dF_dX.Get_sizeM(); j++)
-            {
-                if((j - 3) == i)
+        for (int i = 0; i < SIZE_VECTOR; i++) {
+            for (int j = 3; j < dF_dX.Get_sizeM(); j++) {
+                if ((j - 3) == i)
                     dF_dX.setElement(i, j, 1);
             }
         }
         return dF_dX;
     }
 
-    double calculateDA_dRn(const double &x, const double &r_pos)
+    double calculateDA_dRn(const double& x, const double& r_pos)
     {
         // calculate da_dr (x, y, z)
         double denominator = pow(r_pos, 6);
-        double numerator = - G * M * (pow(r_pos, 3) - 3 * x * x * r_pos);
+        double numerator = -G * M * (pow(r_pos, 3) - 3 * x * x * r_pos);
         return numerator / denominator;
     }
-
 
     /**
      * @brief equationPN - Функция правой части
      * @param state - вектор состояния
      * @param answer - следующий вектор состояния
      */
-    void equationPN(const SimulationVector &state, SimulationVector &answer)
+    void equationPN(const SimulationVector& state, SimulationVector& answer)
     {
         double r_pos = 0, r_speed = 0, prod_vectors = 0;
         answer.clearX_vector();
@@ -86,8 +83,7 @@ public:
             answer.setElementX_vector(i, dt * state.getX_vector()[i + SIZE_VECTOR]); // dr = v * dt
         }
 
-        for(int i = 0; i < SIZE_VECTOR; i++)
-        {
+        for (int i = 0; i < SIZE_VECTOR; i++) {
             r_pos += pow(state.getX_vector()[i], 2);
             r_speed += pow(state.getX_vector()[i + SIZE_VECTOR], 2);
             prod_vectors += state.getX_vector()[i] * state.getX_vector()[SIZE_VECTOR + i];
@@ -95,17 +91,15 @@ public:
         r_pos = sqrt(r_pos);
         r_speed = sqrt(r_speed);
 
-        double Newton_factor = - (G * M) / ( pow(c, 2) * pow(r_pos, 3) );
-        double prod = pow(c, 2) - 4 * (G * M)  / r_pos + pow(r_speed, 2);
+        double Newton_factor = -(G * M) / (pow(c, 2) * pow(r_pos, 3));
+        double prod = pow(c, 2) - 4 * (G * M) / r_pos + pow(r_speed, 2);
 
-        for(int i = 0; i < SIZE_VECTOR; i++)
-        {
-            accel[i] = Newton_factor * (prod * state.getX_vector()[i]
-                                        - 4 * state.getX_vector()[i + 3] * prod_vectors);
+        for (int i = 0; i < SIZE_VECTOR; i++) {
+            accel[i] = Newton_factor * (prod * state.getX_vector()[i] - 4 * state.getX_vector()[i + 3] * prod_vectors);
         }
 
         for (int i = SIZE_VECTOR; i < SIZE_VECTOR * 2; ++i) {
-            answer.setElementX_vector(i, dt * accel[i - 3]);    // dv = a * dt
+            answer.setElementX_vector(i, dt * accel[i - 3]); // dv = a * dt
         }
 
         Matrix dF_dB = Matrix(6, 7);
@@ -122,21 +116,21 @@ public:
      * @param current_state - текущий вектор состояния с декартовыми координатами
      * @return pair, где первый элемент - Decl., а второй - R.A.
      */
-    pair<double,double> translate_to_spherical(const vector<double> &current_state)
+    pair<double, double> translate_to_spherical(const vector<double>& current_state)
     {
         pair<double, double> res;
-        vector<double> pos = {current_state[0] * 1000, current_state[1] * 1000,
-                              current_state[2] * 1000};
+        vector<double> pos = { current_state[0] * 1000, current_state[1] * 1000,
+            current_state[2] * 1000 };
         double r_pos = 0, r_pos2d = 0;
 
         pos[0] += X_BH;
         pos[1] += Y_BH;
         pos[2] += Z_BH;
 
-        for(size_t i = 0; i < SIZE_VECTOR; i++)
+        for (size_t i = 0; i < SIZE_VECTOR; i++)
             r_pos += pow(pos[i], 2);
 
-        for(size_t i = 0; i < 2; i++)
+        for (size_t i = 0; i < 2; i++)
             r_pos2d += pow(pos[i], 2);
 
         r_pos = sqrt(r_pos);
@@ -161,7 +155,7 @@ public:
      * @param state - вектор аргументов с предыдущего шага
      * @return - вектор значений в следующей точке
      */
-    void RK4(const SimulationVector &state, SimulationVector &res)
+    void RK4(const SimulationVector& state, SimulationVector& res)
     {
 
         equationPN(state, k1);
@@ -180,20 +174,67 @@ public:
     {
         cout << "Simulation is running...\n";
         int steps = int(time / dt);
+        int counter = 0;
 
         vector<SimulationVector> stars_result(stars.size());
+        vector<vector<int>> place_numbers;
+        vector<int> cur_index;
+        values.resize(stars.size());
+        place_numbers.resize(stars.size());
+        for (size_t i = 0; i < place_numbers.size(); i++)
+            place_numbers[i] = stars[i]->findIndexModelValue();
 
-        while(steps > 0)
-        {
-            for(size_t index = 0; index < stars.size(); index++)
-            {
-                RK4(stars[index]->getPrev_state(), stars_result[index]);
+        for (size_t i = 0; i < place_numbers.size(); i++)
+            cur_index.push_back(0);
 
-                stars[index]->add_state_to_history(stars_result[index]);
-                stars[index]->add_state_to_sph_history(translate_to_spherical(stars_result[index].getX_vector()));
-                stars[index]->setPrev_state(stars_result[index]);
+        while (steps > 0) {
+            for (size_t star_index = 0; star_index < stars.size(); star_index++) {
+                auto& cur_state = stars_result[star_index];
+                auto RA_Decl = translate_to_spherical(cur_state.getX_vector());
+
+                RK4(stars[star_index]->getPrev_state(), cur_state);
+
+                stars[star_index]->add_state_to_history(cur_state);
+                stars[star_index]->add_state_to_sph_history(RA_Decl);
+                stars[star_index]->setPrev_state(cur_state);
+
+                if (place_numbers[star_index][cur_index[star_index]] == counter) {
+                    addNewModelValue(values[star_index], cur_state, RA_Decl);
+                    if (cur_index[star_index] < int(place_numbers[star_index].size()))
+                        cur_index[star_index]++;
+                }
             }
             steps--;
+            counter++;
+        }
+    }
+
+    void addNewModelValue(vector<ModelValue>& MV_vector, const SimulationVector& state, const pair<double, double>& RA_Decl)
+    {
+        ModelValue new_value;
+        new_value.setDR_dB(state.getDX_dB());
+        new_value.setCortesian_pos(state.getX_vector());
+        new_value.setSpeed(state.getX_vector());
+        new_value.setRA(RA_Decl.second);
+        new_value.setDecl(RA_Decl.first);
+        MV_vector.push_back(new_value);
+    }
+
+    void fillModelValuesVector()
+    {
+        values.resize(stars.size());
+        for (size_t i = 0; i < stars.size(); i++) {
+            auto index_vector = stars[i]->findIndexModelValue();
+            for (auto& index : index_vector) {
+                ModelValue new_value;
+                auto cur_simulation_vector = stars[i]->getHistory()[index];
+                new_value.setDR_dB(cur_simulation_vector.getDX_dB());
+                new_value.setCortesian_pos(cur_simulation_vector.getX_vector());
+                new_value.setSpeed(cur_simulation_vector.getX_vector());
+                new_value.setRA(stars[i]->getSpherical_history_model()[index].second);
+                new_value.setDecl(stars[i]->getSpherical_history_model()[index].second);
+                values[i].push_back(new_value);
+            }
         }
     }
 
@@ -204,16 +245,14 @@ public:
     {
         double min_data_x = 100.0, min_data_y = 100.0;
         double max_data_x = -100.0, max_data_y = -100.0;
-        QtCharts::QLineSeries *first = new QtCharts::QLineSeries();
-        QtCharts::QLineSeries *second = new QtCharts::QLineSeries();
-        QtCharts::QLineSeries *third = new QtCharts::QLineSeries();
+        QtCharts::QLineSeries* first = new QtCharts::QLineSeries();
+        QtCharts::QLineSeries* second = new QtCharts::QLineSeries();
+        QtCharts::QLineSeries* third = new QtCharts::QLineSeries();
         vector<QtCharts::QLineSeries*> data_sph = { first, second, third };
 
-        for(size_t index = 0; index < stars.size(); index++)
-        {
+        for (size_t index = 0; index < stars.size(); index++) {
 
-            for(auto state_sph : stars[index]->getSpherical_history())
-            {
+            for (auto state_sph : stars[index]->getSpherical_history_model()) {
                 min_data_x = (min_data_x > state_sph.first) ? state_sph.first : min_data_x;
                 min_data_y = (min_data_y > state_sph.second) ? state_sph.second : min_data_y;
 
@@ -225,7 +264,3 @@ public:
         window_sph->printGraph(first, second, third, min_data_x, min_data_y, max_data_x, max_data_y);
     }
 };
-
-
-
-

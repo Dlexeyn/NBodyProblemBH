@@ -169,7 +169,7 @@ public:
     bool isAllCalculated(vector<priority_queue<int, vector<int>, greater<int>>>& place_numbers)
     {
         int count = 0;
-        for (auto pq : place_numbers) {
+        for (const auto& pq : place_numbers) {
             if (pq.empty())
                 count++;
         }
@@ -191,6 +191,7 @@ public:
 
         vector<SimulationVector> stars_result(stars.size());
         vector<priority_queue<int, vector<int>, greater<int>>> place_numbers;
+
         values.resize(stars.size());
         place_numbers.resize(stars.size());
         for (size_t i = 0; i < place_numbers.size(); i++)
@@ -208,8 +209,8 @@ public:
                 stars[star_index]->add_state_to_history(cur_state);
                 stars[star_index]->add_state_to_sph_history(RA_Decl);
                 stars[star_index]->setPrev_state(cur_state);
-                top = place_numbers[star_index].top();
-                if (top == counter) {
+
+                if (place_numbers[star_index].top() == counter) {
                     place_numbers[star_index].pop();
                     addNewModelValue(values[star_index], cur_state, RA_Decl);
                 }
@@ -232,23 +233,25 @@ public:
         MV_vector.push_back(new_value);
     }
 
-    //    void fillModelValuesVector()
-    //    {
-    //        values.resize(stars.size());
-    //        for (size_t i = 0; i < stars.size(); i++) {
-    //            auto index_vector = stars[i]->findIndexModelValue();
-    //            for (auto& index : index_vector) {
-    //                ModelValue new_value;
-    //                auto cur_simulation_vector = stars[i]->getHistory()[index];
-    //                new_value.setDR_dB(cur_simulation_vector.getDX_dB());
-    //                new_value.setCortesian_pos(cur_simulation_vector.getX_vector());
-    //                new_value.setSpeed(cur_simulation_vector.getX_vector());
-    //                new_value.setRA(stars[i]->getSpherical_history_model()[index].second);
-    //                new_value.setDecl(stars[i]->getSpherical_history_model()[index].second);
-    //                values[i].push_back(new_value);
-    //            }
-    //        }
-    //    }
+    void generalSolution()
+    {
+        int i = 0;
+        while (i < 10) {
+            cout << "Итерация " << i + 1 << " :\n";
+            runSimulation(HOUR * DAY * YEAR * 20);
+            // inverse_problem
+
+            i++;
+            clearData();
+        }
+    }
+
+    void clearData()
+    {
+        values.clear();
+        for (auto star : stars)
+            star->clearHistory();
+    }
 
     /**
      * @brief printRes - Функция вывода графика в окне MainWindow

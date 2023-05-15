@@ -12,11 +12,19 @@ using namespace std;
 class Star {
     // вектор для хранения всех позиций
     vector<SimulationVector> history;
+
+    // вектор для хранения RA и Decl
     vector<pair<double, double>> spherical_history_model;
+
+    // вектор для хранения наблюдаемых величин
     vector<pair<double, pair<double, double>>> spherical_history_obs;
-    // вектор для хранения последней записи в history
+
     int index;
+
+    // последней запись в history
     SimulationVector prev_state;
+
+    vector<double> init_state;
 
 public:
     Star(string name_file)
@@ -27,8 +35,16 @@ public:
         if (readRA_Dcel_in_star(name_file + "_RA_Decl.txt")) {
             exit(EXIT_FAILURE);
         }
+
+        init_state = prev_state;
     }
 
+    void clearHistory()
+    {
+        history.clear();
+        prev_state = init_state;
+        spherical_history_model.clear();
+    }
     /**
      * @brief read_file - функция чтения начальных данных из
      * файла для звезды

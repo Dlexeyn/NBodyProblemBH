@@ -24,6 +24,8 @@ public:
 
     std::vector<double> getX_vector() const;
 
+    void resizeX_vector(int new_size);
+
     friend SimulationVector operator+(const SimulationVector& V1, const SimulationVector& V2)
     {
         SimulationVector res;

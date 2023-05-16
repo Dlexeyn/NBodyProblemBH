@@ -55,22 +55,19 @@ public:
      */
     int read_file(const string& name_file)
     {
-        string temp_line;
+        double temp;
         ifstream in_file(name_file);
 
+        prev_state.resizeX_vector(SIZE_VECTOR * 2 + 1);
         if (in_file.is_open()) {
-            prev_state.getX_vector().resize(SIZE_VECTOR * 2);
-            int index = 0;
-            while (getline(in_file, temp_line)) {
-                try {
-                    prev_state.setElementX_vector(index++, stod(temp_line));
-                } catch (std::invalid_argument const& ex) {
-                    std::cout << name_file << ": incorrect line " << index + 1 << "\n";
-                    return -2;
-                }
+            for(int i = 0; i < SIZE_VECTOR * 2; i++)
+            {
+                in_file >> temp;
+                prev_state.setElementX_vector(i, temp);
             }
         } else
             return -1;
+        prev_state.setElementX_vector(6, M_BH);
         in_file.close();
         std::cout << name_file << " - correct)\n";
         return 0;

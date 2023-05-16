@@ -3,7 +3,7 @@
 
 const double G = 6.674e-20; // gravitational constant in km^3/kg/s^2
 const double c = 300000.0; // speed of light in km/s
-const double M = 7.9556e+36; // mass of the black hole in kg
+const double M_BH = 7.9556e+36; // mass of the black hole in kg
 
 const int HOUR = 3600;
 const int DAY = 24;

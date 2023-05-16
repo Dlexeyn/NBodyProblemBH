@@ -8,7 +8,7 @@ void SimulationVector::setX_vector(const std::vector<double>& newX_vector)
 void SimulationVector::clearX_vector()
 {
     X_vector.clear();
-    X_vector.resize(SIZE_VECTOR * 2);
+    X_vector.resize(SIZE_VECTOR * 2 + 1);
 }
 
 void SimulationVector::setElementX_vector(int index, double value)
@@ -19,6 +19,11 @@ void SimulationVector::setElementX_vector(int index, double value)
 std::vector<double> SimulationVector::getX_vector() const
 {
     return X_vector;
+}
+
+void SimulationVector::resizeX_vector(int new_size)
+{
+    X_vector.resize(new_size);
 }
 
 Matrix SimulationVector::getDX_dB() const

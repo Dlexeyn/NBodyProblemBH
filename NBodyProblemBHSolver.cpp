@@ -49,7 +49,7 @@ public:
         Matrix dF_dX = Matrix(6, 6);
         for (int i = 3; i < dF_dX.Get_sizeN(); i++) {
             for (int j = 0; j < SIZE_VECTOR; j++)
-                dF_dX.setElement(i, j, calculateDA_dRn(X[j], r_pos));
+                dF_dX.setElement(i, j, calculateDA_dRn(X[j], r_pos, X[6]));
         }
 
         for (int i = 0; i < SIZE_VECTOR; i++) {
@@ -61,7 +61,7 @@ public:
         return dF_dX;
     }
 
-    double calculateDA_dRn(const double& x, const double& r_pos)
+    double calculateDA_dRn(const double& x, const double& r_pos, const double& M)
     {
         // calculate da_dr (x, y, z)
         double denominator = pow(r_pos, 6);
@@ -77,6 +77,7 @@ public:
     void equationPN(const SimulationVector& state, SimulationVector& answer)
     {
         double r_pos = 0, r_speed = 0, prod_vectors = 0;
+        double M = state.getX_vector()[6];
         answer.clearX_vector();
         vector<double> accel(SIZE_VECTOR);
 
@@ -102,6 +103,8 @@ public:
         for (int i = SIZE_VECTOR; i < SIZE_VECTOR * 2; ++i) {
             answer.setElementX_vector(i, dt * accel[i - 3]); // dv = a * dt
         }
+
+        answer.setElementX_vector(6, M);
 
         Matrix dF_dB = Matrix(6, 7);
         calculateDF_dB(state.getX_vector(), r_pos, dF_dB);
@@ -188,7 +191,6 @@ public:
         cout << "Simulation is running...\n";
         int steps = int(time / dt);
         int counter = 0;
-        int top;
 
         vector<SimulationVector> stars_result(stars.size());
         vector<priority_queue<int, vector<int>, greater<int>>> place_numbers;
@@ -200,8 +202,6 @@ public:
 
         while (steps > 0) {
             for (size_t star_index = 0; star_index < stars.size(); star_index++) {
-                if (place_numbers[star_index].empty())
-                    continue;
                 auto& cur_state = stars_result[star_index];
                 auto RA_Decl = translate_to_spherical(cur_state.getX_vector());
 
@@ -227,8 +227,8 @@ public:
     {
         GausNewtonSolver GNSolver;
         int num_rows = int(cur_star->getSpherical_history_obs().size());
-        Matrix R = Matrix(num_rows, 1);
-        Matrix A = Matrix(num_rows, 7);
+        Matrix R = Matrix(num_rows * 2, 1);
+        Matrix A = Matrix(num_rows * 2, 7);
 
         double d_RA = 0, d_Decl = 0;
 

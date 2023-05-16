@@ -285,8 +285,10 @@ public:
     void clearData()
     {
         values.clear();
-        for (auto star : stars)
-            star->clearHistory();
+        for (star_index = 0; star_index < stars.size(); star_index++) {
+            stars[star_index]->clearHistory();
+            stars[star_index]->setInit_state(init_states[star_index]);
+        }
     }
 
     /**

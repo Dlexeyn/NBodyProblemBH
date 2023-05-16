@@ -235,13 +235,13 @@ public:
         for (int i = 0; i < num_rows; i++) {
             GNSolver.calculate_dRA_Decl_dR(value_vector[i]);
             Matrix dR_dB = Matrix(2, 7);
+            int position = (cur_star->GetIndex() +
+                            int(round(cur_star->getSpherical_history_obs()[i].first*365*24)))%cur_star->getSpherical_history_obs().size();
             dR_dB = ( * value_vector[i].getDRA_Decl_dR()) * value_vector[i].getDR_dB();
             d_RA=cur_star->getSpherical_history_obs()[i].second.first -
-                   cur_star->getSpherical_history_model()[(cur_star->GetIndex() +
-                                                           int(round(cur_star->getSpherical_history_obs()[i].first*365*24)))%cur_star->getSpherical_history_obs().size()].first;
+                   cur_star->getSpherical_history_model()[position].first;
             d_Decl=cur_star->getSpherical_history_obs()[i].second.second -
-                     cur_star->getSpherical_history_model()[(cur_star->GetIndex() +
-                                                             int(round(cur_star->getSpherical_history_obs()[i].first*365*24)))%cur_star->getSpherical_history_obs().size()].second;
+                     cur_star->getSpherical_history_model()[position].second;
             for (int j = 0; j < 7; j++)
             {
                 A.Get_matrix()[2*i][j] = dR_dB.Get_matrix()[0][j];

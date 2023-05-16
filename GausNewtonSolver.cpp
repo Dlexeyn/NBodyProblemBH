@@ -1,10 +1,10 @@
-#include "InverseProblem.hpp"
+#include "GausNewtonSolver.hpp"
 
-InverseProblem::InverseProblem()
+GausNewtonSolver::GausNewtonSolver()
 {
 }
 
-void InverseProblem::calculate_dRA_Decl_dR(ModelValue& current_value)
+void GausNewtonSolver::calculate_dRA_Decl_dR(ModelValue& current_value)
 {
     auto dRA_Decl_dR = current_value.getDRA_Decl_dR()->Get_matrix();
 
@@ -24,7 +24,7 @@ void InverseProblem::calculate_dRA_Decl_dR(ModelValue& current_value)
     dRA_Decl_dR[1][2] = RA_denomerator / Decl_denomerator; // dDecl/dz
 }
 
-SimulationVector InverseProblem::Gauss_Newton(SimulationVector x0, Matrix& A, Matrix& R)
+SimulationVector GausNewtonSolver::Gauss_Newton(SimulationVector x0, Matrix& A, Matrix& R)
 {
 
     Matrix gradient_f = (A.Transposition() * A);
@@ -38,7 +38,7 @@ SimulationVector InverseProblem::Gauss_Newton(SimulationVector x0, Matrix& A, Ma
     return new_x0;
 }
 
-Matrix InverseProblem::solve_system(Matrix& gradient_f, Matrix& f_b)
+Matrix GausNewtonSolver::solve_system(Matrix& gradient_f, Matrix& f_b)
 {
     Matrix decomposed_matrix = f_b.Cholesky_decomposition(gradient_f);
 

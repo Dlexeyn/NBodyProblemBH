@@ -1,3 +1,4 @@
+#include "GausNewtonSolver.hpp"
 #include "Options/Constants.h"
 #include "Structures/ModelValue.hpp"
 #include "Structures/SimulationVector.hpp"
@@ -222,6 +223,20 @@ public:
         }
     }
 
+    void inverseTask(Star* cur_star, vector<ModelValue>& value_vector)
+    {
+        GausNewtonSolver GNSolver;
+        int num_rows = int(cur_star->getSpherical_history_obs().size());
+        Matrix R = Matrix(num_rows, 1);
+        Matrix A = Matrix(num_rows, 7);
+
+        double d_RA = 0, d_Decl = 0;
+
+        for (int i = 0; i < num_rows; i++) {
+            GNSolver.calculate_dRA_Decl_dR(value_vector[i]);
+        }
+    }
+
     void addNewModelValue(vector<ModelValue>& MV_vector, const SimulationVector& state, const pair<double, double>& RA_Decl)
     {
         ModelValue new_value;
@@ -240,6 +255,9 @@ public:
             cout << "Итерация " << i + 1 << " :\n";
             runSimulation(HOUR * DAY * YEAR * 20);
             // inverse_problem
+            for (size_t star_index = 0; star_index < stars.size(); star_index++) {
+                inverseTask(stars[star_index], values[star_index]);
+            }
 
             i++;
             clearData();

@@ -37,6 +37,7 @@ public:
         }
 
         init_state = prev_state.getX_vector();
+        init_state.push_back(M_BH);
     }
 
     void clearHistory()
@@ -58,16 +59,14 @@ public:
         double temp;
         ifstream in_file(name_file);
 
-        prev_state.resizeX_vector(SIZE_VECTOR * 2 + 1);
+        prev_state.resizeX_vector(SIZE_VECTOR * 2);
         if (in_file.is_open()) {
-            for(int i = 0; i < SIZE_VECTOR * 2; i++)
-            {
+            for (int i = 0; i < SIZE_VECTOR * 2; i++) {
                 in_file >> temp;
                 prev_state.setElementX_vector(i, temp);
             }
         } else
             return -1;
-        prev_state.setElementX_vector(6, M_BH);
         in_file.close();
         std::cout << name_file << " - correct)\n";
         return 0;
@@ -121,7 +120,8 @@ public:
 
         out.close();
     }
-    int GetIndex(){
+    int GetIndex()
+    {
         return index;
     }
 
@@ -158,15 +158,13 @@ public:
     {
         return prev_state;
     }
-    vector<double> getInit_state() const
+    vector<double>& getInit_state()
     {
         return init_state;
     }
 
-    void setInit_state(const vector<double> &newInit_state)
+    void setInit_state(const vector<double>& newInit_state)
     {
         init_state = newInit_state;
     }
 };
-
-

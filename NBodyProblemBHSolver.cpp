@@ -18,6 +18,8 @@ private:
     // вектор указателей на объекты класса Star
     vector<Star*> stars;
 
+    vector<vector<double>> init_states;
+
     vector<vector<ModelValue>> values;
 
     // окно для графика в сферических координатах
@@ -29,11 +31,16 @@ private:
     // временные значения для метода численного интегрирования
     SimulationVector k1, k2, k3, k4;
 
+    size_t star_index;
+
 public:
     Simulation(Star* S2, Star* S38, Star* S55, double dt)
         : dt(dt)
     {
         stars = { S2, S38, S55 };
+        for (auto star : stars)
+            init_states.push_back(star->getInit_state());
+
         window_sph = new Window_Sph_Graph(nullptr);
     }
 
@@ -77,7 +84,7 @@ public:
     void equationPN(const SimulationVector& state, SimulationVector& answer)
     {
         double r_pos = 0, r_speed = 0, prod_vectors = 0;
-        double M = state.getX_vector()[6];
+        double M = init_states[star_index][6];
         answer.clearX_vector();
         vector<double> accel(SIZE_VECTOR);
 
@@ -103,8 +110,6 @@ public:
         for (int i = SIZE_VECTOR; i < SIZE_VECTOR * 2; ++i) {
             answer.setElementX_vector(i, dt * accel[i - 3]); // dv = a * dt
         }
-
-        answer.setElementX_vector(6, M);
 
         Matrix dF_dB = Matrix(6, 7);
         calculateDF_dB(state.getX_vector(), r_pos, dF_dB);
@@ -201,7 +206,7 @@ public:
             place_numbers[i] = stars[i]->findIndexModelValue();
 
         while (steps > 0) {
-            for (size_t star_index = 0; star_index < stars.size(); star_index++) {
+            for (star_index = 0; star_index < stars.size(); star_index++) {
                 auto& cur_state = stars_result[star_index];
                 auto RA_Decl = translate_to_spherical(cur_state.getX_vector());
 
@@ -235,24 +240,19 @@ public:
         for (int i = 0; i < num_rows; i++) {
             GNSolver.calculate_dRA_Decl_dR(value_vector[i]);
             Matrix dR_dB = Matrix(2, 7);
-            int position = (cur_star->GetIndex() +
-                            int(round(cur_star->getSpherical_history_obs()[i].first*365*24)))%cur_star->getSpherical_history_obs().size();
-            dR_dB = ( * value_vector[i].getDRA_Decl_dR()) * value_vector[i].getDR_dB();
-            d_RA=cur_star->getSpherical_history_obs()[i].second.first -
-                   cur_star->getSpherical_history_model()[position].first;
-            d_Decl=cur_star->getSpherical_history_obs()[i].second.second -
-                     cur_star->getSpherical_history_model()[position].second;
-            for (int j = 0; j < 7; j++)
-            {
-                A.Get_matrix()[2*i][j] = dR_dB.Get_matrix()[0][j];
+            int position = (cur_star->GetIndex() + int(round(cur_star->getSpherical_history_obs()[i].first * 365 * 24))) % cur_star->getSpherical_history_obs().size();
+            dR_dB = (*value_vector[i].getDRA_Decl_dR()) * value_vector[i].getDR_dB();
+            d_RA = cur_star->getSpherical_history_obs()[i].second.first - cur_star->getSpherical_history_model()[position].first;
+            d_Decl = cur_star->getSpherical_history_obs()[i].second.second - cur_star->getSpherical_history_model()[position].second;
+            for (int j = 0; j < 7; j++) {
+                A.Get_matrix()[2 * i][j] = dR_dB.Get_matrix()[0][j];
                 A.Get_matrix()[2 * i + 1][j] = dR_dB.Get_matrix()[1][j];
             }
 
             R.Get_matrix()[2 * i][0] = d_RA;
             R.Get_matrix()[2 * i + 1][0] = d_Decl;
-
         }
-        cur_star->setInit_state(GNSolver.Gauss_Newton(cur_star->getInit_state(),A,R));
+        cur_star->setInit_state(GNSolver.Gauss_Newton(cur_star->getInit_state(), A, R));
     }
 
     void addNewModelValue(vector<ModelValue>& MV_vector, const SimulationVector& state, const pair<double, double>& RA_Decl)

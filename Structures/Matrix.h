@@ -20,6 +20,11 @@ public:
 
     Matrix(int sizeN, int sizeM);
 
+    vector<vector<double>> Get_Matrix() const
+    {
+        return this->matrix;
+    }
+
     int Get_sizeN()
     {
         return this->sizeN;
@@ -37,6 +42,8 @@ public:
 
     Matrix Transposition();
 
+    Matrix& operator=(const Matrix& M);
+
     friend Matrix operator+(const Matrix& M1, const Matrix& M2)
     {
         if (M2.sizeN == M1.sizeN && M2.sizeM == M1.sizeM) {
@@ -53,7 +60,7 @@ public:
 
     friend Matrix operator*(const double num, const Matrix& M)
     {
-        Matrix Result = Matrix(M.sizeN, M.sizeM);
+        Matrix Result = M;
         for (int i = 0; i < Result.sizeN; i++)
             for (int j = 0; j < Result.sizeM; j++) {
                 Result.matrix[i][j] *= num;
@@ -63,7 +70,7 @@ public:
 
     friend Matrix operator/(const Matrix& M, const double num)
     {
-        Matrix Result = Matrix(M.sizeN, M.sizeM);
+        Matrix Result = M;
         for (int i = 0; i < Result.sizeN; i++)
             for (int j = 0; j < Result.sizeM; j++) {
                 Result.matrix[i][j] /= num;

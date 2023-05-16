@@ -53,6 +53,14 @@ public:
         return res;
     }
 
+    SimulationVector& operator=(const SimulationVector& V)
+    {
+        setDX_dB(V.getDX_dB());
+        setDF_dX(V.getDF_dX());
+        X_vector = V.getX_vector();
+        return *this;
+    }
+
     Matrix getDX_dB() const;
 
     void setDX_dB(const Matrix& newDX_dB);

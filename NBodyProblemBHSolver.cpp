@@ -172,7 +172,7 @@ public:
         equationPN(state + (0.5 * k2), k3);
         equationPN(state + k3, k4);
 
-        res = state + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+        res = (state + (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0);
     }
 
     bool isAllCalculated(vector<priority_queue<int, vector<int>, greater<int>>>& place_numbers)
@@ -290,6 +290,18 @@ public:
             stars[star_index]->setInit_state(init_states[star_index]);
         }
     }
+
+    //    void printInits()
+    //    {
+    //        for (star_index = 0; star_index < stars.size(); star_index++) {
+    //            cout << "Star " << star_index + 1 << "\n";
+    //            for (auto state : init_states[star_index]) {
+    //                for (double& b : state)
+    //                    cout << b << " ";
+    //                cout << "\n\n";
+    //            }
+    //        }
+    //    }
 
     /**
      * @brief printRes - Функция вывода графика в окне MainWindow

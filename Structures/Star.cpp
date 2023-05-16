@@ -36,13 +36,13 @@ public:
             exit(EXIT_FAILURE);
         }
 
-        init_state = prev_state;
+        init_state = prev_state.getX_vector();
     }
 
     void clearHistory()
     {
         history.clear();
-        prev_state = init_state;
+        prev_state.setX_vector(init_state);
         spherical_history_model.clear();
     }
     /**
@@ -124,6 +124,9 @@ public:
 
         out.close();
     }
+    int GetIndex(){
+        return index;
+    }
 
     vector<pair<double, double>> getSpherical_history_model() const
     {
@@ -158,4 +161,15 @@ public:
     {
         return prev_state;
     }
+    vector<double> getInit_state() const
+    {
+        return init_state;
+    }
+
+    void setInit_state(const vector<double> &newInit_state)
+    {
+        init_state = newInit_state;
+    }
 };
+
+

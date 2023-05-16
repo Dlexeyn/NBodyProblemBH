@@ -26,6 +26,7 @@ public:
     void setDR_dB(const Matrix& newDR_dB);
     void setCortesian_pos(const std::vector<double>& X_vector);
     void setSpeed(const std::vector<double>& X_vector);
+    Matrix getDR_dB() const;
 };
 
 #endif // MODELVALUE_H

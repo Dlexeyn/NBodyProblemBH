@@ -3,6 +3,7 @@
 
 void ModelValue::setCortesian_pos(const std::vector<double>& X_vector)
 {
+    cortesian_pos.resize(SIZE_VECTOR);
     cortesian_pos[0] = X_vector[0];
     cortesian_pos[1] = X_vector[1];
     cortesian_pos[2] = X_vector[2];
@@ -10,9 +11,15 @@ void ModelValue::setCortesian_pos(const std::vector<double>& X_vector)
 
 void ModelValue::setSpeed(const std::vector<double>& X_vector)
 {
+    speed.resize(SIZE_VECTOR);
     speed[0] = X_vector[3];
     speed[1] = X_vector[4];
     speed[2] = X_vector[5];
+}
+
+Matrix ModelValue::getDR_dB() const
+{
+    return dR_dB;
 }
 
 ModelValue::ModelValue()

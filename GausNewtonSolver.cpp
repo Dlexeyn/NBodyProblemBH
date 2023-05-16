@@ -24,16 +24,17 @@ void GausNewtonSolver::calculate_dRA_Decl_dR(ModelValue& current_value)
     dRA_Decl_dR[1][2] = RA_denomerator / Decl_denomerator; // dDecl/dz
 }
 
-SimulationVector GausNewtonSolver::Gauss_Newton(SimulationVector x0, Matrix& A, Matrix& R)
+
+vector<double> GausNewtonSolver::Gauss_Newton(vector<double> x0, Matrix& A, Matrix& R)
 {
 
     Matrix gradient_f = (A.Transposition() * A);
     Matrix f_b = (A.Transposition() * R); // f(^b) is vector 6x1
     Matrix solution_system = solve_system(gradient_f, f_b);
 
-    SimulationVector new_x0;
+    vector<double> new_x0;
     for (int i = 0; i < 6; i++) {
-        new_x0.getX_vector()[i] = x0.getX_vector()[0] - solution_system.Get_matrix()[i][0];
+        new_x0[i] = x0[0] - solution_system.Get_matrix()[i][0];
     }
     return new_x0;
 }

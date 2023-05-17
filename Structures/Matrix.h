@@ -20,17 +20,19 @@ public:
 
     Matrix(int sizeN, int sizeM);
 
+    Matrix(const Matrix &copy);
+
     vector<vector<double>> Get_Matrix() const
     {
         return this->matrix;
     }
 
-    int Get_sizeN()
+    int Get_sizeN() const
     {
         return this->sizeN;
     }
 
-    int Get_sizeM()
+    int Get_sizeM() const
     {
         return this->sizeM;
     }
@@ -56,7 +58,7 @@ public:
         } else
             exit(1);
     }
-    Matrix Cholesky_decomposition(Matrix A);
+    Matrix Cholesky_decomposition(const Matrix &A);
 
     friend Matrix operator*(const double num, const Matrix& M)
     {

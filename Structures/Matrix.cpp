@@ -3,11 +3,11 @@
 
 Matrix Matrix::Transposition()
 {
-    Matrix new_matrix(sizeM, sizeN);
+    Matrix new_matrix = Matrix(sizeM, sizeN);
     for (int i = 0; i < sizeN; ++i) {
         for (int j = i; j < sizeM; ++j) {
-            new_matrix.Get_matrix()[i][j] = matrix[j][i];
-            new_matrix.Get_matrix()[j][i] = matrix[i][j];
+            new_matrix.setMatrixElement(i, j, matrix[j][i]);
+            new_matrix.setMatrixElement(j, i, matrix[i][j]);
         }
     }
     return new_matrix;
@@ -16,8 +16,8 @@ Matrix Matrix::Transposition()
 Matrix& Matrix::operator=(const Matrix& M)
 {
     matrix.clear();
-    sizeM = M.sizeM;
-    sizeN = M.sizeN;
+    this->sizeM = M.Get_sizeM();
+    this->sizeN = M.Get_sizeN();
 
     matrix.resize(sizeN);
     for (auto& line : matrix) {
@@ -55,9 +55,28 @@ Matrix::Matrix(int sizeN, int sizeM)
         fill(line.begin(), line.end(), 0);
     }
 }
-Matrix Matrix::Cholesky_decomposition(Matrix A)
+
+Matrix::Matrix(const Matrix &copy)
 {
-    Matrix L(A.sizeN, A.sizeM);
+    this->sizeM = copy.Get_sizeM();
+    this->sizeN = copy.Get_sizeN();
+
+    matrix.resize(sizeN);
+    for (auto& line : matrix) {
+        line.resize(sizeM);
+        fill(line.begin(), line.end(), 0);
+    }
+
+    for (int i = 0; i < sizeN; ++i) {
+        for (int j = 0; j < sizeM; ++j) {
+            matrix[i][j] = copy.Get_Matrix()[i][j];
+        }
+    }
+
+}
+Matrix Matrix::Cholesky_decomposition(const Matrix &A)
+{
+    Matrix L(A.Get_sizeN(), A.Get_sizeM());
     if (L.sizeN != L.sizeM) {
         cout << "Error: Cholesky_decomposition\n";
         return L;

@@ -16,6 +16,6 @@ const double Y_BH = 118611250811694902698.78585427456;
 const double Z_BH = 209892887795241600000.0;
 const double Rad_to_Arc_sec = 206264.816;
 
-const int Model_Size = 175200;
+const int Model_Size = 7300;
 
 #endif // CONSTANTS_H

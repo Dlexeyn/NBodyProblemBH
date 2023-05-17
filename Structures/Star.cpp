@@ -76,7 +76,7 @@ public:
     {
         priority_queue<int, vector<int>, greater<int>> res;
         for (size_t i = 0; i < spherical_history_obs.size(); i++) {
-            res.push((int(round(spherical_history_obs[i].first * 365 * 24)) + index) % Model_Size);
+            res.push((int(round(spherical_history_obs[i].first * 365)) + index) % Model_Size);
         }
         return res;
     }
@@ -108,17 +108,24 @@ public:
     void saveHistoryToFile(string nameFile)
     {
         ofstream out(nameFile);
-        if (out.is_open()) {
-            for (const auto& state : history) {
-                auto X = state.getX_vector();
-                for (size_t index = 0; index < X.size() - 1; index++) {
-                    out << X[index] << " ";
-                }
-                out << X.back() << "\n";
+        if (out.is_open()){
+            for(auto it: spherical_history_model){
+                out<< it.first <<" "<< it.second<< endl;
             }
         }
-
         out.close();
+//        ofstream out(nameFile);
+//        if (out.is_open()) {
+//            for (const auto& state : history) {
+//                auto X = state.getX_vector();
+//                for (size_t index = 0; index < X.size() - 1; index++) {
+//                    out << X[index] << " ";
+//                }
+//                out << X.back() << "\n";
+//            }
+//        }
+
+//        out.close();
     }
     int GetIndex()
     {

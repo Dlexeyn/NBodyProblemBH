@@ -6,22 +6,22 @@ GausNewtonSolver::GausNewtonSolver()
 
 void GausNewtonSolver::calculate_dRA_Decl_dR(ModelValue& current_value)
 {
-    auto dRA_Decl_dR = current_value.getDRA_Decl_dR()->Get_matrix();
 
     double x = current_value.getCortesian_pos()[0];
     double y = current_value.getCortesian_pos()[1];
     double z = current_value.getCortesian_pos()[2];
 
     double RA_denomerator = x * x + y * y;
-    dRA_Decl_dR[0][0] = -y / RA_denomerator; // dRA/dx
-    dRA_Decl_dR[0][1] = x / RA_denomerator; // dRA/dy
-    dRA_Decl_dR[0][2] = 0; // dRA/dz
+    current_value.getDRA_Decl_dR()->setMatrixElement(0, 0, -y / RA_denomerator); // dRA/dx
+    current_value.getDRA_Decl_dR()->setMatrixElement(0, 1, x / RA_denomerator); // dRA/dy
+    current_value.getDRA_Decl_dR()->setMatrixElement(0, 2, 0); // dRA/dz
 
     double Decl_denomerator = (x * x + y * y + z * z) * sqrt(RA_denomerator);
 
-    dRA_Decl_dR[1][0] = -(x * z) / Decl_denomerator; // dDecl/dx
-    dRA_Decl_dR[1][1] = (y * z) / Decl_denomerator; // dDecl/dy
-    dRA_Decl_dR[1][2] = RA_denomerator / Decl_denomerator; // dDecl/dz
+    current_value.getDRA_Decl_dR()->setMatrixElement(1, 0, -(x * z) / Decl_denomerator); // dDecl/dx
+    current_value.getDRA_Decl_dR()->setMatrixElement(1, 1, (y * z) / Decl_denomerator); // dDecl/dy
+    current_value.getDRA_Decl_dR()->setMatrixElement(1, 2, RA_denomerator / Decl_denomerator); // dDecl/dz
+
 }
 
 
@@ -52,9 +52,9 @@ Matrix GausNewtonSolver::solve_system(Matrix& gradient_f, Matrix& f_b)
             sum += decomposed_matrix.Get_matrix()[i][j] * y.Get_matrix()[j][0];
         }
         if (decomposed_matrix.Get_matrix()[i][i] == 0) {
-            y.Get_matrix()[i][0] = 0;
+            y.setMatrixElement(i, 0, 0);
         } else {
-            y.Get_matrix()[i][0] = (f_b.Get_matrix()[i][0] - sum) / decomposed_matrix.Get_matrix()[i][i];
+            y.setMatrixElement(i, 0, (f_b.Get_matrix()[i][0] - sum) / decomposed_matrix.Get_matrix()[i][i]);
         }
     }
 
@@ -68,9 +68,9 @@ Matrix GausNewtonSolver::solve_system(Matrix& gradient_f, Matrix& f_b)
             sum += decomposed_matrix.Get_matrix()[i][j] * solution_system.Get_matrix()[j][0];
         }
         if (decomposed_matrix.Get_matrix()[i][i] == 0) {
-            solution_system.Get_matrix()[i][0] = 0;
+            solution_system.setMatrixElement(i, 0, 0);
         } else {
-            solution_system.Get_matrix()[i][0] = (y.Get_matrix()[i][0] - sum) / decomposed_matrix.Get_matrix()[i][i];
+            solution_system.setMatrixElement(i, 0, (y.Get_matrix()[i][0] - sum) / decomposed_matrix.Get_matrix()[i][i]);
         }
     }
 

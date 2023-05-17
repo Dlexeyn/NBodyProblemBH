@@ -245,12 +245,12 @@ public:
             d_RA = cur_star->getSpherical_history_obs()[i].second.first - cur_star->getSpherical_history_model()[position].first;
             d_Decl = cur_star->getSpherical_history_obs()[i].second.second - cur_star->getSpherical_history_model()[position].second;
             for (int j = 0; j < 7; j++) {
-                A.Get_matrix()[2 * i][j] = dR_dB.Get_matrix()[0][j];
-                A.Get_matrix()[2 * i + 1][j] = dR_dB.Get_matrix()[1][j];
+                A.setMatrixElement(2*i, j, dR_dB.Get_matrix()[0][j]);
+                A.setMatrixElement(2*i + 1, j, dR_dB.Get_matrix()[1][j]);
             }
 
-            R.Get_matrix()[2 * i][0] = d_RA;
-            R.Get_matrix()[2 * i + 1][0] = d_Decl;
+            R.setMatrixElement(2 * i, 0 ,d_RA);
+            R.setMatrixElement(2 * i + 1, 0, d_Decl);
         }
         cur_star->setInit_state(GNSolver.Gauss_Newton(cur_star->getInit_state(), A, R));
     }

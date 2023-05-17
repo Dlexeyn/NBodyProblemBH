@@ -95,6 +95,7 @@ public:
         }
         exit(1);
     }
+    void setMatrixElement(int y, int x, double value);
 };
 
 #endif // UNTITLED_MATRIX_H

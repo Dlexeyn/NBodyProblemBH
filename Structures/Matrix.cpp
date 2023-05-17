@@ -76,3 +76,8 @@ Matrix Matrix::Cholesky_decomposition(Matrix A)
     }
     return L;
 }
+
+void Matrix::setMatrixElement(int y, int x, double value)
+{
+    matrix[y][x] = value;
+}

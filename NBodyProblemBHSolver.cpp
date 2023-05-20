@@ -130,31 +130,33 @@ public:
         pair<double, double> res;
         vector<double> pos = { current_state[0] * 1000, current_state[1] * 1000,
             current_state[2] * 1000 };
-        double r_pos = 0, r_pos2d = 0;
+//        double r_pos = 0, r_pos2d = 0;
 
         pos[0] += X_BH;
         pos[1] += Y_BH;
         pos[2] += Z_BH;
 
-        for (size_t i = 0; i < SIZE_VECTOR; i++)
-            r_pos += pow(pos[i], 2);
+//        for (size_t i = 0; i < SIZE_VECTOR; i++)
+//            r_pos += pow(pos[i], 2);
 
-        for (size_t i = 0; i < 2; i++)
-            r_pos2d += pow(pos[i], 2);
+//        for (size_t i = 0; i < 2; i++)
+//            r_pos2d += pow(pos[i], 2);
 
-        r_pos = sqrt(r_pos);
-        r_pos2d = sqrt(r_pos2d);
+//        r_pos = sqrt(r_pos);
+//        r_pos2d = sqrt(r_pos2d);
 
-        double Decl = asin(pos[2] / r_pos);
-        double RA = asin(pos[1] / r_pos2d);
+        double RA = atan2(pos[1], pos[0]);
+        double Decl = atan2(pos[2], sqrt(pow(pos[0],2) + pow(pos[1],2)));
+        //double Decl = asin(pos[2] / r_pos);
+//        double RA = asin(pos[1] / r_pos2d);
 
         Decl -= 1.05249165;
-        RA -= 1.4355335;
+        RA -= 1.70605945;
 
         Decl *= Rad_to_Arc_sec;
         RA *= Rad_to_Arc_sec;
 
-        res = make_pair(Decl, RA);
+        res = make_pair(RA, Decl);
 
         return res;
     }
@@ -269,16 +271,18 @@ public:
     void generalSolution()
     {
         int i = 0;
-        while (i < 1) {
+        while (i < 10) {
             cout << "Итерация " << i + 1 << " :\n";
-            runSimulation(HOUR*DAY * YEAR * 20);
+            runSimulation(HOUR * DAY * YEAR * 20);
             // inverse_problem
+            inverseTask(stars[0], values[0]);
+            inverseTask(stars[1], values[1]);
             for (size_t star_index = 0; star_index < stars.size(); star_index++) {
                 inverseTask(stars[star_index], values[star_index]);
             }
 
             i++;
-//            clearData();
+            clearData();
         }
     }
 

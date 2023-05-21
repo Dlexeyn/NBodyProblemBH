@@ -271,18 +271,18 @@ public:
     void generalSolution()
     {
         int i = 0;
-        while (i < 10) {
+        while (i < 1) {
             cout << "Итерация " << i + 1 << " :\n";
             runSimulation(HOUR * DAY * YEAR * 20);
             // inverse_problem
-            inverseTask(stars[0], values[0]);
-            inverseTask(stars[1], values[1]);
-            for (size_t star_index = 0; star_index < stars.size(); star_index++) {
-                inverseTask(stars[star_index], values[star_index]);
-            }
+//            inverseTask(stars[0], values[0]);
+//            inverseTask(stars[1], values[1]);
+//            for (size_t star_index = 0; star_index < stars.size(); star_index++) {
+//                inverseTask(stars[star_index], values[star_index]);
+//            }
 
             i++;
-            clearData();
+//            clearData();
         }
     }
 

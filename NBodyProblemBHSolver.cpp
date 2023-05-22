@@ -156,7 +156,7 @@ public:
         Decl *= Rad_to_Arc_sec;
         RA *= Rad_to_Arc_sec;
 
-        res = make_pair(RA, Decl);
+        res = make_pair(Decl, RA);
 
         return res;
     }
@@ -242,10 +242,18 @@ public:
         for (int i = 0; i < num_rows; i++) {
             GNSolver.calculate_dRA_Decl_dR(value_vector[i]);
             Matrix dR_dB = Matrix(2, 7);
-            int position = (cur_star->GetIndex() + int(round(cur_star->getSpherical_history_obs()[i].first * 365 * 24))) % cur_star->getSpherical_history_obs().size();
-            dR_dB = (*value_vector[i].getDRA_Decl_dR()) * value_vector[i].getDR_dB();
+            int temp = int(round(cur_star->getSpherical_history_obs()[i].first * 365));
+            int position = (cur_star->GetIndex() + temp) % cur_star->getSpherical_history_model().size();
+            dR_dB = (-1 * (*value_vector[i].getDRA_Decl_dR()) * value_vector[i].getDR_dB());
             d_RA = cur_star->getSpherical_history_obs()[i].second.first - cur_star->getSpherical_history_model()[position].first;
             d_Decl = cur_star->getSpherical_history_obs()[i].second.second - cur_star->getSpherical_history_model()[position].second;
+
+            while ((d_RA > PI) or (d_RA < -PI))
+            {
+                int sign = d_RA > PI ? -1 : 1;
+                d_RA = d_RA + sign * 2 * PI;
+            }
+
             for (int j = 0; j < 7; j++) {
                 A.setMatrixElement(2*i, j, dR_dB.Get_matrix()[0][j]);
                 A.setMatrixElement(2*i + 1, j, dR_dB.Get_matrix()[1][j]);
@@ -275,11 +283,9 @@ public:
             cout << "Итерация " << i + 1 << " :\n";
             runSimulation(HOUR * DAY * YEAR * 20);
             // inverse_problem
-//            inverseTask(stars[0], values[0]);
-//            inverseTask(stars[1], values[1]);
-//            for (size_t star_index = 0; star_index < stars.size(); star_index++) {
-//                inverseTask(stars[star_index], values[star_index]);
-//            }
+            for (size_t star_index = 0; star_index < stars.size(); star_index++) {
+                inverseTask(stars[star_index], values[star_index]);
+            }
 
             i++;
 //            clearData();

@@ -15,6 +15,7 @@ const double X_BH = -16142282780211031640.09676999264;
 const double Y_BH = 118611250811694902698.78585427456;
 const double Z_BH = 209892887795241600000.0;
 const double Rad_to_Arc_sec = 206264.816;
+const double PI = 3.1415926535;
 
 const int Model_Size = 7300;
 

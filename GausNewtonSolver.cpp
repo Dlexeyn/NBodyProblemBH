@@ -42,35 +42,35 @@ vector<double> GausNewtonSolver::Gauss_Newton(vector<double> &x0, Matrix& A, Mat
 
 Matrix GausNewtonSolver::solve_system(Matrix& gradient_f, Matrix& f_b)
 {
-    Matrix decomposed_matrix = f_b.Cholesky_decomposition(gradient_f);
+    Matrix L = f_b.Cholesky_decomposition(gradient_f);
 
-    Matrix y(decomposed_matrix.Get_sizeN(), f_b.Get_sizeM());
+    Matrix y(L.Get_sizeN(), f_b.Get_sizeM());
 
-    for (int i = 0; i < decomposed_matrix.Get_sizeN(); i++) {
+    for (int i = 0; i < L.Get_sizeN(); i++) {
         double sum = 0;
         for (int j = 0; j < i; j++) {
-            sum += decomposed_matrix.Get_matrix()[i][j] * y.Get_matrix()[j][0];
+            sum += L.Get_matrix()[i][j] * y.Get_matrix()[j][0];
         }
-        if (decomposed_matrix.Get_matrix()[i][i] == 0) {
+        if (L.Get_matrix()[i][i] == 0) {
             y.setMatrixElement(i, 0, 0);
         } else {
-            y.setMatrixElement(i, 0, (f_b.Get_matrix()[i][0] - sum) / decomposed_matrix.Get_matrix()[i][i]);
+            y.setMatrixElement(i, 0, (f_b.Get_matrix()[i][0] - sum) / L.Get_matrix()[i][i]);
         }
     }
 
-    decomposed_matrix = decomposed_matrix.Transposition();
+    L = L.Transposition();
 
-    Matrix solution_system(decomposed_matrix.Get_sizeN(), y.Get_sizeM());
+    Matrix solution_system(L.Get_sizeN(), y.Get_sizeM());
 
-    for (int i = decomposed_matrix.Get_sizeN() - 1; i > -1; i--) {
+    for (int i = L.Get_sizeN() - 1; i > -1; i--) {
         double sum = 0;
-        for (int j = i; j < decomposed_matrix.Get_sizeN(); j++) {
-            sum += decomposed_matrix.Get_matrix()[i][j] * solution_system.Get_matrix()[j][0];
+        for (int j = i; j < L.Get_sizeN(); j++) {
+            sum += L.Get_matrix()[i][j] * solution_system.Get_matrix()[j][0];
         }
-        if (decomposed_matrix.Get_matrix()[i][i] == 0) {
+        if (L.Get_matrix()[i][i] == 0) {
             solution_system.setMatrixElement(i, 0, 0);
         } else {
-            solution_system.setMatrixElement(i, 0, (y.Get_matrix()[i][0] - sum) / decomposed_matrix.Get_matrix()[i][i]);
+            solution_system.setMatrixElement(i, 0, (y.Get_matrix()[i][0] - sum) / L.Get_matrix()[i][i]);
         }
     }
 

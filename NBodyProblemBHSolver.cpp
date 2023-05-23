@@ -54,10 +54,29 @@ public:
     Matrix calculateDF_dX(const vector<double>& X, const double& r_pos)
     {
         Matrix dF_dX = Matrix(6, 6);
+        double M = stars[star_index]->getInit_state()[6];
         for (int i = 3; i < dF_dX.Get_sizeN(); i++) {
             for (int j = 0; j < SIZE_VECTOR; j++)
-                dF_dX.setElement(i, j, calculateDA_dRn(X[j], r_pos, X[6]));
+            {
+                if(i == j + 3)
+                {
+                    dF_dX.setElement(i, j, calculateDA_dRn(X[j], r_pos, M));
+                }
+            }
         }
+
+        double dAxy_dyx = (3 * G * M * X[0] * X[1]) / (pow(r_pos, 5));
+        double dAxz_dzx = (3 * G * M * X[0] * X[2]) / (pow(r_pos, 5));
+        double dAyz_dzy = (3 * G * M * X[1] * X[2]) / (pow(r_pos, 5));
+
+        dF_dX.setElement(3, 1, dAxy_dyx);
+        dF_dX.setElement(4, 0, dAxy_dyx);
+
+        dF_dX.setElement(3, 2, dAxz_dzx);
+        dF_dX.setElement(5, 0, dAxz_dzx);
+
+        dF_dX.setElement(4, 2, dAyz_dzy);
+        dF_dX.setElement(5, 1, dAyz_dzy);
 
         for (int i = 0; i < SIZE_VECTOR; i++) {
             for (int j = 3; j < dF_dX.Get_sizeM(); j++) {
@@ -73,7 +92,9 @@ public:
         // calculate da_dr (x, y, z)
         double denominator = pow(r_pos, 6);
         double numerator = -G * M * (pow(r_pos, 3) - 3 * x * x * r_pos);
+
         return numerator / denominator;
+
     }
 
     /**

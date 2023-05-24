@@ -7,7 +7,7 @@
 
 class ModelValue {
     Matrix dRA_Decl_dB = Matrix(2, 7);
-    Matrix dRA_Decl_dR = Matrix(2, 6);
+    Matrix dRA_Decl_dR = Matrix(2, 3);
     Matrix dR_dB = Matrix(6, 7); // dx/db
 
     std::vector<double> cortesian_pos;

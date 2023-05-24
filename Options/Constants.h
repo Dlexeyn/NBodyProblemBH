@@ -18,5 +18,6 @@ const double Rad_to_Arc_sec = 206264.816;
 const double PI = 3.1415926535;
 
 const int Model_Size = 7300;
+const int Size_Matrix_B = 7;
 
 #endif // CONSTANTS_H

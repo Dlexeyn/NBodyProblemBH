@@ -5,6 +5,7 @@
 #include "window_sph_graph.hpp"
 
 #include <QApplication>
+#include<QDebug>
 #include <QLineSeries>
 #include <QPointF>
 #include <cmath>
@@ -251,6 +252,28 @@ public:
         }
     }
 
+    void printMatrix(const Matrix &matrix, string name)
+    {
+        qDebug() << name.c_str() << " :\n";
+        for(int y = 0; y < matrix.Get_sizeN(); y++)
+        {
+            for(int x = 0; x < matrix.Get_sizeM(); x++)
+            {
+                qDebug() << matrix.Get_Matrix()[y][x] << " ";
+            }
+            qDebug() << "\n";
+        }
+    }
+
+    void transformDR_DB(Matrix &new_DR_dB, ModelValue &value)
+    {
+        for(int i=0; i < 3; i++){
+            for(int j=0; j < Size_Matrix_B; j++){
+                new_DR_dB.setMatrixElement(i, j, value.getDR_dB().Get_Matrix()[i][j]);
+            }
+        }
+    }
+
     void inverseTask(Star* cur_star, vector<ModelValue>& value_vector)
     {
         GausNewtonSolver GNSolver;
@@ -263,9 +286,20 @@ public:
         for (int i = 0; i < num_rows; i++) {
             GNSolver.calculate_dRA_Decl_dR(value_vector[i]);
             Matrix dR_dB = Matrix(2, 7);
+            Matrix dX_dB = Matrix(3, 7);
+
             int temp = int(round(cur_star->getSpherical_history_obs()[i].first * 365));
             int position = (cur_star->GetIndex() + temp) % cur_star->getSpherical_history_model().size();
-            dR_dB = (-1 * (*value_vector[i].getDRA_Decl_dR()) * value_vector[i].getDR_dB());
+
+//            printMatrix(*value_vector[i].getDRA_Decl_dR(), "dRA_Decl_dR");
+//            qDebug() << "\n*\n";
+//            printMatrix(value_vector[i].getDR_dB(), "dR_dB");
+
+
+            transformDR_DB(dX_dB, value_vector[i]);
+            dR_dB = (-1 * (*value_vector[i].getDRA_Decl_dR()) * dX_dB);
+
+            // table value - model value
             d_RA = cur_star->getSpherical_history_obs()[i].second.first - cur_star->getSpherical_history_model()[position].first;
             d_Decl = cur_star->getSpherical_history_obs()[i].second.second - cur_star->getSpherical_history_model()[position].second;
 
@@ -304,7 +338,7 @@ public:
             cout << "Итерация " << i + 1 << " :\n";
             runSimulation(HOUR * DAY * YEAR * 20);
             // inverse_problem
-            for (size_t star_index = 0; star_index < stars.size(); star_index++) {
+            for (size_t star_index = 0; star_index < 1; star_index++) {
                 inverseTask(stars[star_index], values[star_index]);
             }
 

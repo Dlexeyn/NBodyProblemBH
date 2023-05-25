@@ -296,7 +296,7 @@ public:
             transformDR_DB(dX_dB, value_vector[i]);
             dR_dB = (-1 * (*value_vector[i].getDRA_Decl_dR()) * dX_dB);
 
-            // table value - model value
+            // delta = table value - model value
             d_RA = cur_star->getSpherical_history_obs()[i].second.first - cur_star->getSpherical_history_model()[position].first;
             d_Decl = cur_star->getSpherical_history_obs()[i].second.second - cur_star->getSpherical_history_model()[position].second;
 
@@ -320,9 +320,6 @@ public:
     {
         ModelValue new_value;
         new_value.setDX_dB(state.getDX__dr0_dv0_dM());
-
-        // new_value.setDR_dB(state.getDX_dB());
-
         new_value.setCortesian_pos(state.getX_vector());
         new_value.setSpeed(state.getX_vector());
         new_value.setRA(RA_Decl.second);
@@ -368,7 +365,7 @@ public:
     //    }
 
     /**
-     * @brief printRes - Функция вывода графика в окне MainWindow
+     * @brief printRes - Функция для формирования вывода графика в окне MainWindow
      */
     void printRes()
     {

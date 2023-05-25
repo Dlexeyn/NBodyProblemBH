@@ -17,11 +17,6 @@ void ModelValue::setSpeed(const std::vector<double>& X_vector)
     speed[2] = X_vector[5];
 }
 
-Matrix ModelValue::getDR_dB() const
-{
-    return dR_dB;
-}
-
 void ModelValue::setDRA_Decl_dR(const Matrix &newDRA_Decl_dR)
 {
     dRA_Decl_dR = newDRA_Decl_dR;
@@ -68,7 +63,3 @@ void ModelValue::setDecl(double newDecl)
     Decl = newDecl;
 }
 
-void ModelValue::setDR_dB(const Matrix& newDR_dB)
-{
-    dR_dB = newDR_dB;
-}

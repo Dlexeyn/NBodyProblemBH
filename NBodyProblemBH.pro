@@ -17,7 +17,7 @@ SOURCES += \
     Structures/Matrix.cpp \
     Structures/VectorsOperations.cpp \
     main.cpp \
-    window_sph_graph.cpp
+    Graphics/window_sph_graph.cpp
 
 HEADERS += \
     GausNewtonSolver.hpp \
@@ -26,10 +26,10 @@ HEADERS += \
     Structures/SimulationVector.hpp \
     Structures/Matrix.h \
     Structures/VectorsOperations.hpp \
-    window_sph_graph.hpp
+    Graphics/window_sph_graph.hpp
 
 FORMS += \
-    window_sph_graph.ui
+    Graphics/window_sph_graph.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

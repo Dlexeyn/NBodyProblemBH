@@ -6,9 +6,7 @@
 #include <vector>
 
 class ModelValue {
-    Matrix dRA_Decl_dB = Matrix(2, 7);
     Matrix dRA_Decl_dR = Matrix(2, 3);
-    Matrix dR_dB = Matrix(6, 7); // dx/db
 
     Matrix dX_dB = Matrix(6, 7);
 
@@ -20,18 +18,23 @@ class ModelValue {
 
 public:
     ModelValue();
-    Matrix* getDRA_Decl_dR();
     std::vector<double> getCortesian_pos() const;
+
     std::vector<double> getSpeed() const;
+
     void setRA(double newRA);
+
     void setDecl(double newDecl);
-    void setDR_dB(const Matrix& newDR_dB);
+
     void setCortesian_pos(const std::vector<double>& X_vector);
+
     void setSpeed(const std::vector<double>& X_vector);
-    Matrix getDR_dB() const;
-    void setDRA_Decl_dR(const Matrix &newDRA_Decl_dR);
+
+    Matrix* getDRA_Decl_dR();
+    void setDRA_Decl_dR(const Matrix& newDRA_Decl_dR);
+
     Matrix getDX_dB() const;
-    void setDX_dB(const Matrix &newDX_dB);
+    void setDX_dB(const Matrix& newDX_dB);
 };
 
 #endif // MODELVALUE_H

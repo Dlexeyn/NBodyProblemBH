@@ -20,4 +20,6 @@ const double PI = 3.1415926535;
 const int Model_Size = 7300;
 const int Size_Matrix_B = 7;
 
+const int Iters_Num = 1;
+
 #endif // CONSTANTS_H

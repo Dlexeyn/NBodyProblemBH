@@ -5,7 +5,7 @@
 #include "window_sph_graph.hpp"
 
 #include <QApplication>
-#include<QDebug>
+#include <QDebug>
 #include <QLineSeries>
 #include <QPointF>
 #include <cmath>
@@ -48,22 +48,18 @@ public:
     void calculateDF_dB(const vector<double>& X, const double& r_pos, Matrix& dF_dB)
     {
         // da/dM = - G r / |r| ^ 3
-        for (int i = 0; i < SIZE_VECTOR; i++)
-        {
+        for (int i = 0; i < SIZE_VECTOR; i++) {
             double debug_var = -(X[i] * G) / pow(r_pos, 3);
             dF_dB.setElement(3 + i, 6, debug_var);
         }
-
     }
 
-    Matrix calculateDF_dX(const vector<double>& X, const double& r_pos, Matrix &dF_dX)
+    Matrix calculateDF_dX(const vector<double>& X, const double& r_pos, Matrix& dF_dX)
     {
         double M = stars[star_index]->getInit_state()[6];
         for (int i = 3; i < dF_dX.Get_sizeN(); i++) {
-            for (int j = 0; j < SIZE_VECTOR; j++)
-            {
-                if(i == j + 3)
-                {
+            for (int j = 0; j < SIZE_VECTOR; j++) {
+                if (i == j + 3) {
                     dF_dX.setElement(i, j, calculateDA_dRn(X[j], r_pos, M));
                 }
             }
@@ -98,7 +94,6 @@ public:
         double numerator = -G * M * (pow(r_pos, 3) - 3 * x * x * r_pos);
 
         return numerator / denominator;
-
     }
 
     /**
@@ -146,19 +141,20 @@ public:
 
         calculateDF_dX(state.getX_vector(), r_pos, dF__dr_dv);
 
-        // dX_dB = dF_dB + dF_dX * dX_dB
+        // dF_dB = dF_dB_prev + dF_dX * dX_dB
         DF__dr0_dv0_dM = dF__dr0_dv0_dM + dF__dr_dv * state.getDX__dr0_dv0_dM();
 
+        // new DX__dr0_dv0_dM = dt * dF_dB
         answer.setDX__dr0_dv0_dM(dt * DF__dr0_dv0_dM);
 
-//        Matrix dF_dB = Matrix(6, 7);
-//        calculateDF_dB(state.getX_vector(), r_pos, dF_dB);
+        //        Matrix dF_dB = Matrix(6, 7);
+        //        calculateDF_dB(state.getX_vector(), r_pos, dF_dB);
 
-//        answer.setDF_dX(calculateDF_dX(state.getX_vector(), r_pos));
+        //        answer.setDF_dX(calculateDF_dX(state.getX_vector(), r_pos));
 
-//        // dX_dB = dF_dB + dF_dX * dX_dB
-//        auto temp_matrix = answer.getDF_dX() * state.getDX_dB();
-//        answer.setDX_dB(dF_dB + temp_matrix);
+        //        // dX_dB = dF_dB + dF_dX * dX_dB
+        //        auto temp_matrix = answer.getDF_dX() * state.getDX_dB();
+        //        answer.setDX_dB(dF_dB + temp_matrix);
     }
 
     /**
@@ -171,25 +167,25 @@ public:
         pair<double, double> res;
         vector<double> pos = { current_state[0] * 1000, current_state[1] * 1000,
             current_state[2] * 1000 };
-//        double r_pos = 0, r_pos2d = 0;
+        //        double r_pos = 0, r_pos2d = 0;
 
         pos[0] += X_BH;
         pos[1] += Y_BH;
         pos[2] += Z_BH;
 
-//        for (size_t i = 0; i < SIZE_VECTOR; i++)
-//            r_pos += pow(pos[i], 2);
+        //        for (size_t i = 0; i < SIZE_VECTOR; i++)
+        //            r_pos += pow(pos[i], 2);
 
-//        for (size_t i = 0; i < 2; i++)
-//            r_pos2d += pow(pos[i], 2);
+        //        for (size_t i = 0; i < 2; i++)
+        //            r_pos2d += pow(pos[i], 2);
 
-//        r_pos = sqrt(r_pos);
-//        r_pos2d = sqrt(r_pos2d);
+        //        r_pos = sqrt(r_pos);
+        //        r_pos2d = sqrt(r_pos2d);
 
         double RA = atan2(pos[1], pos[0]);
-        double Decl = atan2(pos[2], sqrt(pow(pos[0],2) + pow(pos[1],2)));
-        //double Decl = asin(pos[2] / r_pos);
-//        double RA = asin(pos[1] / r_pos2d);
+        double Decl = atan2(pos[2], sqrt(pow(pos[0], 2) + pow(pos[1], 2)));
+        // double Decl = asin(pos[2] / r_pos);
+        //        double RA = asin(pos[1] / r_pos2d);
 
         Decl -= 1.05249165;
         RA -= 1.70605945;
@@ -271,23 +267,10 @@ public:
         }
     }
 
-    void printMatrix(const Matrix &matrix, string name)
+    void transformDR_DB(Matrix& new_DR_dB, ModelValue& value)
     {
-        qDebug() << name.c_str() << " :\n";
-        for(int y = 0; y < matrix.Get_sizeN(); y++)
-        {
-            for(int x = 0; x < matrix.Get_sizeM(); x++)
-            {
-                qDebug() << matrix.Get_Matrix()[y][x] << " ";
-            }
-            qDebug() << "\n";
-        }
-    }
-
-    void transformDR_DB(Matrix &new_DR_dB, ModelValue &value)
-    {
-        for(int i=0; i < 3; i++){
-            for(int j=0; j < Size_Matrix_B; j++){
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < Size_Matrix_B; j++) {
                 new_DR_dB.setElement(i, j, value.getDX_dB().Get_Matrix()[i][j]);
             }
         }
@@ -310,11 +293,6 @@ public:
             int temp = int(round(cur_star->getSpherical_history_obs()[i].first * 365));
             int position = (cur_star->GetIndex() + temp) % cur_star->getSpherical_history_model().size();
 
-//            printMatrix(*value_vector[i].getDRA_Decl_dR(), "dRA_Decl_dR");
-//            qDebug() << "\n*\n";
-//            printMatrix(value_vector[i].getDR_dB(), "dR_dB");
-
-
             transformDR_DB(dX_dB, value_vector[i]);
             dR_dB = (-1 * (*value_vector[i].getDRA_Decl_dR()) * dX_dB);
 
@@ -322,18 +300,17 @@ public:
             d_RA = cur_star->getSpherical_history_obs()[i].second.first - cur_star->getSpherical_history_model()[position].first;
             d_Decl = cur_star->getSpherical_history_obs()[i].second.second - cur_star->getSpherical_history_model()[position].second;
 
-            while ((d_RA > PI) or (d_RA < -PI))
-            {
+            while ((d_RA > PI) or (d_RA < -PI)) {
                 int sign = d_RA > PI ? -1 : 1;
                 d_RA = d_RA + sign * 2 * PI;
             }
 
             for (int j = 0; j < 7; j++) {
-                A.setElement(2*i, j, dR_dB.Get_matrix()[0][j]);
-                A.setElement(2*i + 1, j, dR_dB.Get_matrix()[1][j]);
+                A.setElement(2 * i, j, dR_dB.Get_matrix()[0][j]);
+                A.setElement(2 * i + 1, j, dR_dB.Get_matrix()[1][j]);
             }
 
-            R.setElement(2 * i, 0 ,d_RA);
+            R.setElement(2 * i, 0, d_RA);
             R.setElement(2 * i + 1, 0, d_Decl);
         }
         cur_star->setInit_state(GNSolver.Gauss_Newton(cur_star->getInit_state(), A, R));
@@ -344,7 +321,7 @@ public:
         ModelValue new_value;
         new_value.setDX_dB(state.getDX__dr0_dv0_dM());
 
-        //new_value.setDR_dB(state.getDX_dB());
+        // new_value.setDR_dB(state.getDX_dB());
 
         new_value.setCortesian_pos(state.getX_vector());
         new_value.setSpeed(state.getX_vector());
@@ -356,7 +333,7 @@ public:
     void generalSolution()
     {
         int i = 0;
-        while (i < 1) {
+        while (i < Iters_Num) {
             cout << "Итерация " << i + 1 << " :\n";
             runSimulation(HOUR * DAY * YEAR * 20);
             // inverse_problem
@@ -365,7 +342,7 @@ public:
             }
 
             i++;
-//            clearData();
+            //            clearData();
         }
     }
 

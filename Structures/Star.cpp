@@ -38,6 +38,18 @@ public:
 
         init_state = prev_state.getX_vector();
         init_state.push_back(M_BH);
+
+        // E matrix on 0 step
+        for(size_t y = 0; y < 6; y++)
+        {
+            for(size_t x = 0; x < 7; x++)
+            {
+                if(x == y)
+                {
+                    prev_state.setElementDX_matrix(y, x, 1);
+                }
+            }
+        }
     }
 
     void clearHistory()

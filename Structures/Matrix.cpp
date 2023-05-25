@@ -6,8 +6,8 @@ Matrix Matrix::Transposition()
     Matrix new_matrix = Matrix(sizeM, sizeN);
     for (int i = 0; i < sizeN; ++i) {
         for (int j = i; j < sizeM; ++j) {
-            new_matrix.setMatrixElement(i, j, matrix[j][i]);
-            new_matrix.setMatrixElement(j, i, matrix[i][j]);
+            new_matrix.setElement(i, j, matrix[j][i]);
+            new_matrix.setElement(j, i, matrix[i][j]);
         }
     }
     return new_matrix;
@@ -96,7 +96,3 @@ Matrix Matrix::Cholesky_decomposition(const Matrix &A)
     return L;
 }
 
-void Matrix::setMatrixElement(int y, int x, double value)
-{
-    matrix[y][x] = value;
-}

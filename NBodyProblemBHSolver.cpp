@@ -49,12 +49,15 @@ public:
     {
         // da/dM = - G r / |r| ^ 3
         for (int i = 0; i < SIZE_VECTOR; i++)
-            dF_dB.setElement(3 + i, 6, -(X[i] * G) / pow(r_pos, 3));
+        {
+            double debug_var = -(X[i] * G) / pow(r_pos, 3);
+            dF_dB.setElement(3 + i, 6, debug_var);
+        }
+
     }
 
-    Matrix calculateDF_dX(const vector<double>& X, const double& r_pos)
+    Matrix calculateDF_dX(const vector<double>& X, const double& r_pos, Matrix &dF_dX)
     {
-        Matrix dF_dX = Matrix(6, 6);
         double M = stars[star_index]->getInit_state()[6];
         for (int i = 3; i < dF_dX.Get_sizeN(); i++) {
             for (int j = 0; j < SIZE_VECTOR; j++)
@@ -133,13 +136,29 @@ public:
             answer.setElementX_vector(i, dt * accel[i - 3]); // dv = a * dt
         }
 
-        Matrix dF_dB = Matrix(6, 7);
-        calculateDF_dB(state.getX_vector(), r_pos, dF_dB);
+        Matrix DF__dr0_dv0_dM = Matrix(6, 7);
 
-        answer.setDF_dX(calculateDF_dX(state.getX_vector(), r_pos));
+        Matrix dF__dr0_dv0_dM = Matrix(6, 7);
+
+        Matrix dF__dr_dv = Matrix(6, 6);
+
+        calculateDF_dB(state.getX_vector(), r_pos, dF__dr0_dv0_dM);
+
+        calculateDF_dX(state.getX_vector(), r_pos, dF__dr_dv);
 
         // dX_dB = dF_dB + dF_dX * dX_dB
-        answer.setDX_dB(dF_dB + answer.getDF_dX() * state.getDX_dB());
+        DF__dr0_dv0_dM = dF__dr0_dv0_dM + dF__dr_dv * state.getDX__dr0_dv0_dM();
+
+        answer.setDX__dr0_dv0_dM(dt * DF__dr0_dv0_dM);
+
+//        Matrix dF_dB = Matrix(6, 7);
+//        calculateDF_dB(state.getX_vector(), r_pos, dF_dB);
+
+//        answer.setDF_dX(calculateDF_dX(state.getX_vector(), r_pos));
+
+//        // dX_dB = dF_dB + dF_dX * dX_dB
+//        auto temp_matrix = answer.getDF_dX() * state.getDX_dB();
+//        answer.setDX_dB(dF_dB + temp_matrix);
     }
 
     /**
@@ -269,7 +288,7 @@ public:
     {
         for(int i=0; i < 3; i++){
             for(int j=0; j < Size_Matrix_B; j++){
-                new_DR_dB.setMatrixElement(i, j, value.getDR_dB().Get_Matrix()[i][j]);
+                new_DR_dB.setElement(i, j, value.getDX_dB().Get_Matrix()[i][j]);
             }
         }
     }
@@ -310,12 +329,12 @@ public:
             }
 
             for (int j = 0; j < 7; j++) {
-                A.setMatrixElement(2*i, j, dR_dB.Get_matrix()[0][j]);
-                A.setMatrixElement(2*i + 1, j, dR_dB.Get_matrix()[1][j]);
+                A.setElement(2*i, j, dR_dB.Get_matrix()[0][j]);
+                A.setElement(2*i + 1, j, dR_dB.Get_matrix()[1][j]);
             }
 
-            R.setMatrixElement(2 * i, 0 ,d_RA);
-            R.setMatrixElement(2 * i + 1, 0, d_Decl);
+            R.setElement(2 * i, 0 ,d_RA);
+            R.setElement(2 * i + 1, 0, d_Decl);
         }
         cur_star->setInit_state(GNSolver.Gauss_Newton(cur_star->getInit_state(), A, R));
     }
@@ -323,7 +342,10 @@ public:
     void addNewModelValue(vector<ModelValue>& MV_vector, const SimulationVector& state, const pair<double, double>& RA_Decl)
     {
         ModelValue new_value;
-        new_value.setDR_dB(state.getDX_dB());
+        new_value.setDX_dB(state.getDX__dr0_dv0_dM());
+
+        //new_value.setDR_dB(state.getDX_dB());
+
         new_value.setCortesian_pos(state.getX_vector());
         new_value.setSpeed(state.getX_vector());
         new_value.setRA(RA_Decl.second);
@@ -338,7 +360,7 @@ public:
             cout << "Итерация " << i + 1 << " :\n";
             runSimulation(HOUR * DAY * YEAR * 20);
             // inverse_problem
-            for (size_t star_index = 0; star_index < 1; star_index++) {
+            for (size_t star_index = 0; star_index < 3; star_index++) {
                 inverseTask(stars[star_index], values[star_index]);
             }
 

@@ -16,6 +16,11 @@ void SimulationVector::setElementX_vector(int index, double value)
     X_vector[index] = value;
 }
 
+void SimulationVector::setElementDX_matrix(int y, int x, double value)
+{
+    dX__dr0_dv0_dM.setElement(y, x, value);
+}
+
 std::vector<double> SimulationVector::getX_vector() const
 {
     return X_vector;
@@ -44,6 +49,16 @@ Matrix SimulationVector::getDF_dX() const
 void SimulationVector::setDF_dX(const Matrix& newDF_dX)
 {
     dF_dX = newDF_dX;
+}
+
+Matrix SimulationVector::getDX__dr0_dv0_dM() const
+{
+    return dX__dr0_dv0_dM;
+}
+
+void SimulationVector::setDX__dr0_dv0_dM(const Matrix &newDX__dr0_dv0_dM)
+{
+    dX__dr0_dv0_dM = newDX__dr0_dv0_dM;
 }
 
 SimulationVector::SimulationVector()

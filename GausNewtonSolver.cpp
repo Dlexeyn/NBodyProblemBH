@@ -12,15 +12,15 @@ void GausNewtonSolver::calculate_dRA_Decl_dR(ModelValue& current_value)
     double z = current_value.getCortesian_pos()[2];
 
     double RA_denomerator = x * x + y * y;
-    current_value.getDRA_Decl_dR()->setMatrixElement(0, 0, -y / RA_denomerator); // dRA/dx
-    current_value.getDRA_Decl_dR()->setMatrixElement(0, 1, x / RA_denomerator); // dRA/dy
-    current_value.getDRA_Decl_dR()->setMatrixElement(0, 2, 0); // dRA/dz
+    current_value.getDRA_Decl_dR()->setElement(0, 0, -y / RA_denomerator); // dRA/dx
+    current_value.getDRA_Decl_dR()->setElement(0, 1, x / RA_denomerator); // dRA/dy
+    current_value.getDRA_Decl_dR()->setElement(0, 2, 0); // dRA/dz
 
     double Decl_denomerator = (x * x + y * y + z * z) * sqrt(RA_denomerator);
 
-    current_value.getDRA_Decl_dR()->setMatrixElement(1, 0, -(x * z) / Decl_denomerator); // dDecl/dx
-    current_value.getDRA_Decl_dR()->setMatrixElement(1, 1, (y * z) / Decl_denomerator); // dDecl/dy
-    current_value.getDRA_Decl_dR()->setMatrixElement(1, 2, RA_denomerator / Decl_denomerator); // dDecl/dz
+    current_value.getDRA_Decl_dR()->setElement(1, 0, -(x * z) / Decl_denomerator); // dDecl/dx
+    current_value.getDRA_Decl_dR()->setElement(1, 1, (y * z) / Decl_denomerator); // dDecl/dy
+    current_value.getDRA_Decl_dR()->setElement(1, 2, RA_denomerator / Decl_denomerator); // dDecl/dz
 
 }
 
@@ -52,9 +52,9 @@ Matrix GausNewtonSolver::solve_system(Matrix& gradient_f, Matrix& f_b)
             sum += L.Get_matrix()[i][j] * y.Get_matrix()[j][0];
         }
         if (L.Get_matrix()[i][i] == 0) {
-            y.setMatrixElement(i, 0, 0);
+            y.setElement(i, 0, 0);
         } else {
-            y.setMatrixElement(i, 0, (f_b.Get_matrix()[i][0] - sum) / L.Get_matrix()[i][i]);
+            y.setElement(i, 0, (f_b.Get_matrix()[i][0] - sum) / L.Get_matrix()[i][i]);
         }
     }
 
@@ -68,9 +68,9 @@ Matrix GausNewtonSolver::solve_system(Matrix& gradient_f, Matrix& f_b)
             sum += L.Get_matrix()[i][j] * solution_system.Get_matrix()[j][0];
         }
         if (L.Get_matrix()[i][i] == 0) {
-            solution_system.setMatrixElement(i, 0, 0);
+            solution_system.setElement(i, 0, 0);
         } else {
-            solution_system.setMatrixElement(i, 0, (y.Get_matrix()[i][0] - sum) / L.Get_matrix()[i][i]);
+            solution_system.setElement(i, 0, (y.Get_matrix()[i][0] - sum) / L.Get_matrix()[i][i]);
         }
     }
 

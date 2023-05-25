@@ -27,6 +27,16 @@ void ModelValue::setDRA_Decl_dR(const Matrix &newDRA_Decl_dR)
     dRA_Decl_dR = newDRA_Decl_dR;
 }
 
+Matrix ModelValue::getDX_dB() const
+{
+    return dX_dB;
+}
+
+void ModelValue::setDX_dB(const Matrix &newDX_dB)
+{
+    dX_dB = newDX_dB;
+}
+
 ModelValue::ModelValue()
 {
     cortesian_pos.resize(SIZE_VECTOR);

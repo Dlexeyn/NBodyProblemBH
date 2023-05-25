@@ -10,6 +10,8 @@ class ModelValue {
     Matrix dRA_Decl_dR = Matrix(2, 3);
     Matrix dR_dB = Matrix(6, 7); // dx/db
 
+    Matrix dX_dB = Matrix(6, 7);
+
     std::vector<double> cortesian_pos;
     std::vector<double> speed;
 
@@ -28,6 +30,8 @@ public:
     void setSpeed(const std::vector<double>& X_vector);
     Matrix getDR_dB() const;
     void setDRA_Decl_dR(const Matrix &newDRA_Decl_dR);
+    Matrix getDX_dB() const;
+    void setDX_dB(const Matrix &newDX_dB);
 };
 
 #endif // MODELVALUE_H

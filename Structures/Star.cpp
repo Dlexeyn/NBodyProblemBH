@@ -57,6 +57,20 @@ public:
         history.clear();
         prev_state.setX_vector(init_state);
         spherical_history_model.clear();
+
+
+        for(size_t y = 0; y < 6; y++)
+        {
+            for(size_t x = 0; x < 7; x++)
+            {
+                if(x == y)
+                {
+                    prev_state.setElementDX_matrix(y, x, 1);
+                }
+                else
+                    prev_state.setElementDX_matrix(y, x, 0);
+            }
+        }
     }
     /**
      * @brief read_file - функция чтения начальных данных из

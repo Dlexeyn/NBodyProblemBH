@@ -33,8 +33,8 @@ vector<double> GausNewtonSolver::Gauss_Newton(vector<double> &x0, Matrix& A, Mat
     Matrix solution_system = solve_system(gradient_f, f_b);
 
     vector<double> new_x0;
-    new_x0.resize(SIZE_VECTOR * 2 + 1);
-    for (int i = 0; i < 7; i++) {
+    new_x0.resize(Size_Matrix_B);
+    for (int i = 0; i < Size_Matrix_B; i++) {
         new_x0[i] = x0[i] - solution_system.Get_matrix()[i][0];
     }
     return new_x0;

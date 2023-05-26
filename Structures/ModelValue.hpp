@@ -8,7 +8,7 @@
 class ModelValue {
     Matrix dRA_Decl_dR = Matrix(2, 3);
 
-    Matrix dX_dB = Matrix(6, 7);
+    Matrix dX_dB = Matrix(6, Size_Matrix_B);
 
     std::vector<double> cortesian_pos;
     std::vector<double> speed;

@@ -250,12 +250,13 @@ public:
             for (star_index = 0; star_index < stars.size(); star_index++) {
                 auto& cur_state = stars_result[star_index];
                 auto RA_Decl = translate_to_spherical(cur_state.getX_vector());
+                auto& star = stars[star_index];
 
-                RK4(stars[star_index]->getPrev_state(), cur_state);
+                RK4(star->getPrev_state(), cur_state);
 
-                stars[star_index]->add_state_to_history(cur_state);
-                stars[star_index]->add_state_to_sph_history(RA_Decl);
-                stars[star_index]->setPrev_state(cur_state);
+                star->add_state_to_history(cur_state);
+                star->add_state_to_sph_history(RA_Decl);
+                star->setPrev_state(cur_state);
 
                 if (place_numbers[star_index].top() == counter) {
                     place_numbers[star_index].pop();
@@ -291,16 +292,17 @@ public:
             GNSolver.calculate_dRA_Decl_dR(value_vector[i]);
             Matrix dR_dB = Matrix(2, Size_Matrix_B);
             Matrix dX_dB = Matrix(3, Size_Matrix_B);
+            auto& cur_RA_Decl = cur_star->getSpherical_history_obs()[i];
 
-            int temp = int(round(cur_star->getSpherical_history_obs()[i].first * 365));
+            int temp = int(round(cur_RA_Decl.first * 365));
             int position = (cur_star->GetIndex() + temp) % cur_star->getSpherical_history_model().size();
 
             transformDR_DB(dX_dB, value_vector[i]);
             dR_dB = (-1 * (*value_vector[i].getDRA_Decl_dR()) * dX_dB);
 
             // delta = table value - model value
-            d_RA = cur_star->getSpherical_history_obs()[i].second.first - cur_star->getSpherical_history_model()[position].first;
-            d_Decl = cur_star->getSpherical_history_obs()[i].second.second - cur_star->getSpherical_history_model()[position].second;
+            d_RA = cur_RA_Decl.second.first - cur_star->getSpherical_history_model()[position].first;
+            d_Decl = cur_RA_Decl.second.second - cur_star->getSpherical_history_model()[position].second;
 
             while ((d_RA > PI) or (d_RA < -PI)) {
                 int sign = d_RA > PI ? -1 : 1;

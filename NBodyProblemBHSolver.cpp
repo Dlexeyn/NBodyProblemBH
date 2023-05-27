@@ -248,9 +248,9 @@ public:
 
         while (steps > 0) {
             for (star_index = 0; star_index < stars.size(); star_index++) {
-                auto& cur_state = stars_result[star_index];
+                auto cur_state = stars_result[star_index];
                 auto RA_Decl = translate_to_spherical(cur_state.getX_vector());
-                auto& star = stars[star_index];
+                auto star = stars[star_index];
 
                 RK4(star->getPrev_state(), cur_state);
 
@@ -292,7 +292,7 @@ public:
             GNSolver.calculate_dRA_Decl_dR(value_vector[i]);
             Matrix dR_dB = Matrix(2, Size_Matrix_B);
             Matrix dX_dB = Matrix(3, Size_Matrix_B);
-            auto& cur_RA_Decl = cur_star->getSpherical_history_obs()[i];
+            auto cur_RA_Decl = cur_star->getSpherical_history_obs()[i];
 
             int temp = int(round(cur_RA_Decl.first * 365));
             int position = (cur_star->GetIndex() + temp) % cur_star->getSpherical_history_model().size();

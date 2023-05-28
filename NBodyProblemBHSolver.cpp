@@ -57,6 +57,7 @@ public:
     Matrix calculateDF_dX(const vector<double>& X, const double& r_pos, Matrix& dF_dX)
     {
         double M = stars[star_index]->getInit_state()[6];
+        //double M = M_BH;
         for (int i = 3; i < dF_dX.Get_sizeN(); i++) {
             for (int j = 0; j < SIZE_VECTOR; j++) {
                 if (i == j + 3) {
@@ -105,6 +106,7 @@ public:
     {
         double r_pos = 0, r_speed = 0, prod_vectors = 0;
         double M = init_states[star_index][6];
+        ///double M = M_BH;
         answer.clearX_vector();
         vector<double> accel(SIZE_VECTOR);
 
@@ -193,7 +195,7 @@ public:
         Decl *= Rad_to_Arc_sec;
         RA *= Rad_to_Arc_sec;
 
-        res = make_pair(Decl, RA);
+        res = make_pair(RA, Decl);
 
         return res;
     }
@@ -246,14 +248,14 @@ public:
 
         while (steps > 0) {
             for (star_index = 0; star_index < stars.size(); star_index++) {
+                auto star = stars[star_index];
                 auto& cur_state = stars_result[star_index];
+                RK4(star->getPrev_state(), cur_state);
                 auto RA_Decl = translate_to_spherical(cur_state.getX_vector());
 
-                RK4(stars[star_index]->getPrev_state(), cur_state);
-
-                stars[star_index]->add_state_to_history(cur_state);
-                stars[star_index]->add_state_to_sph_history(RA_Decl);
-                stars[star_index]->setPrev_state(cur_state);
+                star->add_state_to_history(cur_state);
+                star->add_state_to_sph_history(RA_Decl);
+                star->setPrev_state(cur_state);
 
                 if (place_numbers[star_index].top() == counter) {
                     place_numbers[star_index].pop();
@@ -289,16 +291,19 @@ public:
             GNSolver.calculate_dRA_Decl_dR(value_vector[i]);
             Matrix dR_dB = Matrix(2, 7);
             Matrix dX_dB = Matrix(3, 7);
+            auto RA_Decl_obs = cur_star->getSpherical_history_obs()[i];
 
-            int temp = int(round(cur_star->getSpherical_history_obs()[i].first * 365));
+            int temp = int(round(RA_Decl_obs.first * 365));
             int position = (cur_star->GetIndex() + temp) % cur_star->getSpherical_history_model().size();
+
+            auto RA_Decl_model = cur_star->getSpherical_history_model()[position];
 
             transformDR_DB(dX_dB, value_vector[i]);
             dR_dB = (-1 * (*value_vector[i].getDRA_Decl_dR()) * dX_dB);
 
             // delta = table value - model value
-            d_RA = cur_star->getSpherical_history_obs()[i].second.first - cur_star->getSpherical_history_model()[position].first;
-            d_Decl = cur_star->getSpherical_history_obs()[i].second.second - cur_star->getSpherical_history_model()[position].second;
+            d_RA = RA_Decl_obs.second.first - RA_Decl_model.first;
+            d_Decl = RA_Decl_obs.second.second - RA_Decl_model.second;
 
             while ((d_RA > PI) or (d_RA < -PI)) {
                 int sign = d_RA > PI ? -1 : 1;
@@ -322,8 +327,8 @@ public:
         new_value.setDX_dB(state.getDX__dr0_dv0_dM());
         new_value.setCortesian_pos(state.getX_vector());
         new_value.setSpeed(state.getX_vector());
-        new_value.setRA(RA_Decl.second);
-        new_value.setDecl(RA_Decl.first);
+        new_value.setRA(RA_Decl.first);
+        new_value.setDecl(RA_Decl.second);
         MV_vector.push_back(new_value);
     }
 
@@ -334,12 +339,12 @@ public:
             cout << "Итерация " << i + 1 << " :\n";
             runSimulation(HOUR * DAY * YEAR * 20);
             // inverse_problem
-            for (size_t star_index = 0; star_index < 3; star_index++) {
+            for (size_t star_index = 0; star_index < 1; star_index++) {
                 inverseTask(stars[star_index], values[star_index]);
             }
 
             i++;
-            //            clearData();
+            clearData();
         }
     }
 
@@ -348,7 +353,7 @@ public:
         values.clear();
         for (star_index = 0; star_index < stars.size(); star_index++) {
             stars[star_index]->clearHistory();
-            stars[star_index]->setInit_state(init_states[star_index]);
+            init_states[star_index] = stars[star_index]->getInit_state();
         }
     }
 

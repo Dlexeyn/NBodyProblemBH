@@ -2,7 +2,7 @@
 #include "Options/Constants.h"
 #include "Structures/ModelValue.hpp"
 #include "Structures/SimulationVector.hpp"
-#include "window_sph_graph.hpp"
+#include "Graphics/window_sph_graph.hpp"
 
 #include <QApplication>
 #include <QDebug>

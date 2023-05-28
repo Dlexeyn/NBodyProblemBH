@@ -2,7 +2,7 @@
 #include "Options/Constants.h"
 #include "Structures/ModelValue.hpp"
 #include "Structures/SimulationVector.hpp"
-#include "Graphics/window_sph_graph.hpp"
+#include "window_sph_graph.hpp"
 
 #include <QApplication>
 #include <QDebug>
@@ -56,8 +56,7 @@ public:
 
     Matrix calculateDF_dX(const vector<double>& X, const double& r_pos, Matrix& dF_dX)
     {
-        //double M = stars[star_index]->getInit_state()[6];
-        double M = M_BH;
+        double M = stars[star_index]->getInit_state()[6];
         for (int i = 3; i < dF_dX.Get_sizeN(); i++) {
             for (int j = 0; j < SIZE_VECTOR; j++) {
                 if (i == j + 3) {
@@ -105,8 +104,7 @@ public:
     void equationPN(const SimulationVector& state, SimulationVector& answer)
     {
         double r_pos = 0, r_speed = 0, prod_vectors = 0;
-       // double M = init_states[star_index][6];
-        double M = M_BH;
+        double M = init_states[star_index][6];
         answer.clearX_vector();
         vector<double> accel(SIZE_VECTOR);
 
@@ -133,9 +131,9 @@ public:
             answer.setElementX_vector(i, dt * accel[i - 3]); // dv = a * dt
         }
 
-        Matrix DF__dr0_dv0_dM = Matrix(6, Size_Matrix_B);
+        Matrix DF__dr0_dv0_dM = Matrix(6, 7);
 
-        Matrix dF__dr0_dv0_dM = Matrix(6, Size_Matrix_B);
+        Matrix dF__dr0_dv0_dM = Matrix(6, 7);
 
         Matrix dF__dr_dv = Matrix(6, 6);
 
@@ -283,14 +281,14 @@ public:
         GausNewtonSolver GNSolver;
         int num_rows = int(cur_star->getSpherical_history_obs().size());
         Matrix R = Matrix(num_rows * 2, 1);
-        Matrix A = Matrix(num_rows * 2, Size_Matrix_B);
+        Matrix A = Matrix(num_rows * 2, 7);
 
         double d_RA = 0, d_Decl = 0;
 
         for (int i = 0; i < num_rows; i++) {
             GNSolver.calculate_dRA_Decl_dR(value_vector[i]);
-            Matrix dR_dB = Matrix(2, Size_Matrix_B);
-            Matrix dX_dB = Matrix(3, Size_Matrix_B);
+            Matrix dR_dB = Matrix(2, 7);
+            Matrix dX_dB = Matrix(3, 7);
 
             int temp = int(round(cur_star->getSpherical_history_obs()[i].first * 365));
             int position = (cur_star->GetIndex() + temp) % cur_star->getSpherical_history_model().size();
@@ -307,7 +305,7 @@ public:
                 d_RA = d_RA + sign * 2 * PI;
             }
 
-            for (int j = 0; j < Size_Matrix_B; j++) {
+            for (int j = 0; j < 7; j++) {
                 A.setElement(2 * i, j, dR_dB.Get_matrix()[0][j]);
                 A.setElement(2 * i + 1, j, dR_dB.Get_matrix()[1][j]);
             }
@@ -336,10 +334,8 @@ public:
             cout << "Итерация " << i + 1 << " :\n";
             runSimulation(HOUR * DAY * YEAR * 20);
             // inverse_problem
-            //inverseTask(stars[0], values[0]);
-            for (size_t star_index = 0; star_index < 1; star_index++) {
+            for (size_t star_index = 0; star_index < 3; star_index++) {
                 inverseTask(stars[star_index], values[star_index]);
-                init_states.at(star_index) = stars[star_index]->getInit_state();
             }
 
             i++;
@@ -352,7 +348,7 @@ public:
         values.clear();
         for (star_index = 0; star_index < stars.size(); star_index++) {
             stars[star_index]->clearHistory();
-            //stars[star_index]->setInit_state(init_states[star_index]);
+            stars[star_index]->setInit_state(init_states[star_index]);
         }
     }
 

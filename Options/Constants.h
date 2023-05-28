@@ -3,7 +3,7 @@
 
 const double G = 6.674e-20; // gravitational constant in km^3/kg/s^2
 const double c = 300000.0; // speed of light in km/s
-const double M_BH = 8.2e+36; // mass of the black hole in kg
+const double M_BH = 7.9556e+36; // mass of the black hole in kg
 
 const int HOUR = 3600;
 const int DAY = 24;
@@ -18,8 +18,8 @@ const double Rad_to_Arc_sec = 206264.816;
 const double PI = 3.1415926535;
 
 const int Model_Size = 7300;
-const int Size_Matrix_B = 6;
+const int Size_Matrix_B = 7;
 
-const int Iters_Num = 10;
+const int Iters_Num = 1;
 
 #endif // CONSTANTS_H

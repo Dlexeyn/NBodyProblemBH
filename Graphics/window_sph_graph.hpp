@@ -22,8 +22,8 @@ public:
     ~Window_Sph_Graph();
 
     void printGraph(QLineSeries* firstStar, QLineSeries* secondStar, QLineSeries* thirdStar,
-        double& min_x, double& min_y,
-        double& max_x, double& max_y);
+        long double& min_x, long double& min_y,
+        long double& max_x, long double& max_y);
 
 private:
     Ui::Window_Sph_Graph* ui;

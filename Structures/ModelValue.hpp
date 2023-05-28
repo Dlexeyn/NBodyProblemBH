@@ -10,25 +10,25 @@ class ModelValue {
 
     Matrix dX_dB = Matrix(6, 7);
 
-    std::vector<double> cortesian_pos;
-    std::vector<double> speed;
+    std::vector<long double> cortesian_pos;
+    std::vector<long double> speed;
 
-    double RA;
-    double Decl;
+    long double RA;
+    long double Decl;
 
 public:
     ModelValue();
-    std::vector<double> getCortesian_pos() const;
+    std::vector<long double> getCortesian_pos() const;
 
-    std::vector<double> getSpeed() const;
+    std::vector<long double> getSpeed() const;
 
-    void setRA(double newRA);
+    void setRA(long double newRA);
 
-    void setDecl(double newDecl);
+    void setDecl(long double newDecl);
 
-    void setCortesian_pos(const std::vector<double>& X_vector);
+    void setCortesian_pos(const std::vector<long double>& X_vector);
 
-    void setSpeed(const std::vector<double>& X_vector);
+    void setSpeed(const std::vector<long double>& X_vector);
 
     Matrix* getDRA_Decl_dR();
     void setDRA_Decl_dR(const Matrix& newDRA_Decl_dR);

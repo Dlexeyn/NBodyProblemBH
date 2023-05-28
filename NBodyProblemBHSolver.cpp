@@ -19,7 +19,7 @@ private:
     // вектор указателей на объекты класса Star
     vector<Star*> stars;
 
-    vector<vector<double>> init_states;
+    vector<vector<long double>> init_states;
 
     vector<vector<ModelValue>> values;
 
@@ -27,7 +27,7 @@ private:
     Window_Sph_Graph* window_sph;
 
     // шаг для метода численного интегрирования
-    double dt;
+    long double dt;
 
     // временные значения для метода численного интегрирования
     SimulationVector k1, k2, k3, k4;
@@ -35,7 +35,7 @@ private:
     size_t star_index;
 
 public:
-    Simulation(Star* S2, Star* S38, Star* S55, double dt)
+    Simulation(Star* S2, Star* S38, Star* S55, long double dt)
         : dt(dt)
     {
         stars = { S2, S38, S55 };
@@ -45,19 +45,19 @@ public:
         window_sph = new Window_Sph_Graph(nullptr);
     }
 
-    void calculateDF_dB(const vector<double>& X, const double& r_pos, Matrix& dF_dB)
+    void calculateDF_dB(const vector<long double>& X, const long double& r_pos, Matrix& dF_dB)
     {
         // da/dM = - G r / |r| ^ 3
         for (int i = 0; i < SIZE_VECTOR; i++) {
-            double debug_var = -(X[i] * G) / pow(r_pos, 3);
+            long double debug_var = -(X[i] * G) / pow(r_pos, 3);
             dF_dB.setElement(3 + i, 6, debug_var);
         }
     }
 
-    Matrix calculateDF_dX(const vector<double>& X, const double& r_pos, Matrix& dF_dX)
+    Matrix calculateDF_dX(const vector<long double>& X, const long double& r_pos, Matrix& dF_dX)
     {
-        double M = stars[star_index]->getInit_state()[6];
-        //double M = M_BH;
+        long double M = stars[star_index]->getInit_state()[6];
+        //long double M = M_BH;
         for (int i = 3; i < dF_dX.Get_sizeN(); i++) {
             for (int j = 0; j < SIZE_VECTOR; j++) {
                 if (i == j + 3) {
@@ -66,9 +66,9 @@ public:
             }
         }
 
-        double dAxy_dyx = (3 * G * M * X[0] * X[1]) / (pow(r_pos, 5));
-        double dAxz_dzx = (3 * G * M * X[0] * X[2]) / (pow(r_pos, 5));
-        double dAyz_dzy = (3 * G * M * X[1] * X[2]) / (pow(r_pos, 5));
+        long double dAxy_dyx = (3 * G * M * X[0] * X[1]) / (pow(r_pos, 5));
+        long double dAxz_dzx = (3 * G * M * X[0] * X[2]) / (pow(r_pos, 5));
+        long double dAyz_dzy = (3 * G * M * X[1] * X[2]) / (pow(r_pos, 5));
 
         dF_dX.setElement(3, 1, dAxy_dyx);
         dF_dX.setElement(4, 0, dAxy_dyx);
@@ -88,11 +88,11 @@ public:
         return dF_dX;
     }
 
-    double calculateDA_dRn(const double& x, const double& r_pos, const double& M)
+    long double calculateDA_dRn(const long double& x, const long double& r_pos, const long double& M)
     {
         // calculate da_dr (x, y, z)
-        double denominator = pow(r_pos, 6);
-        double numerator = -G * M * (pow(r_pos, 3) - 3 * x * x * r_pos);
+        long double denominator = pow(r_pos, 6);
+        long double numerator = -G * M * (pow(r_pos, 3) - 3 * x * x * r_pos);
 
         return numerator / denominator;
     }
@@ -104,11 +104,11 @@ public:
      */
     void equationPN(const SimulationVector& state, SimulationVector& answer)
     {
-        double r_pos = 0, r_speed = 0, prod_vectors = 0;
-        double M = init_states[star_index][6];
-        ///double M = M_BH;
+        long double r_pos = 0, r_speed = 0, prod_vectors = 0;
+        long double M = init_states[star_index][6];
+        ///long double M = M_BH;
         answer.clearX_vector();
-        vector<double> accel(SIZE_VECTOR);
+        vector<long double> accel(SIZE_VECTOR);
 
         for (int i = 0; i < SIZE_VECTOR; ++i) {
             answer.setElementX_vector(i, dt * state.getX_vector()[i + SIZE_VECTOR]); // dr = v * dt
@@ -122,8 +122,8 @@ public:
         r_pos = sqrt(r_pos);
         r_speed = sqrt(r_speed);
 
-        double Newton_factor = -(G * M) / (pow(c, 2) * pow(r_pos, 3));
-        double prod = pow(c, 2) - 4 * (G * M) / r_pos + pow(r_speed, 2);
+        long double Newton_factor = -(G * M) / (pow(c, 2) * pow(r_pos, 3));
+        long double prod = pow(c, 2) - 4 * (G * M) / r_pos + pow(r_speed, 2);
 
         for (int i = 0; i < SIZE_VECTOR; i++) {
             accel[i] = Newton_factor * (prod * state.getX_vector()[i] - 4 * state.getX_vector()[i + 3] * prod_vectors);
@@ -164,12 +164,12 @@ public:
      * @param current_state - текущий вектор состояния с декартовыми координатами
      * @return pair, где первый элемент - Decl., а второй - R.A.
      */
-    pair<double, double> translate_to_spherical(const vector<double>& current_state)
+    pair<long double, long double> translate_to_spherical(const vector<long double>& current_state)
     {
-        pair<double, double> res;
-        vector<double> pos = { current_state[0] * 1000, current_state[1] * 1000,
+        pair<long double, long double> res;
+        vector<long double> pos = { current_state[0] * 1000, current_state[1] * 1000,
             current_state[2] * 1000 };
-        //        double r_pos = 0, r_pos2d = 0;
+        //        long double r_pos = 0, r_pos2d = 0;
 
         pos[0] += X_BH;
         pos[1] += Y_BH;
@@ -184,10 +184,10 @@ public:
         //        r_pos = sqrt(r_pos);
         //        r_pos2d = sqrt(r_pos2d);
 
-        double RA = atan2(pos[1], pos[0]);
-        double Decl = atan2(pos[2], sqrt(pow(pos[0], 2) + pow(pos[1], 2)));
-        // double Decl = asin(pos[2] / r_pos);
-        //        double RA = asin(pos[1] / r_pos2d);
+        long double RA = atan2(pos[1], pos[0]);
+        long double Decl = atan2(pos[2], sqrt(pow(pos[0], 2) + pow(pos[1], 2)));
+        // long double Decl = asin(pos[2] / r_pos);
+        //        long double RA = asin(pos[1] / r_pos2d);
 
         Decl -= 1.05249165;
         RA -= 1.70605945;
@@ -232,7 +232,7 @@ public:
      * @brief runSimulation - Функция для запуска расчета
      * @param time - время рассчета
      */
-    void runSimulation(double time)
+    void runSimulation(long double time)
     {
         cout << "Simulation is running...\n";
         int steps = int(time / dt);
@@ -285,7 +285,7 @@ public:
         Matrix R = Matrix(num_rows * 2, 1);
         Matrix A = Matrix(num_rows * 2, 7);
 
-        double d_RA = 0, d_Decl = 0;
+        long double d_RA = 0, d_Decl = 0;
 
         for (int i = 0; i < num_rows; i++) {
             GNSolver.calculate_dRA_Decl_dR(value_vector[i]);
@@ -321,7 +321,7 @@ public:
         cur_star->setInit_state(GNSolver.Gauss_Newton(cur_star->getInit_state(), A, R));
     }
 
-    void addNewModelValue(vector<ModelValue>& MV_vector, const SimulationVector& state, const pair<double, double>& RA_Decl)
+    void addNewModelValue(vector<ModelValue>& MV_vector, const SimulationVector& state, const pair<long double, long double>& RA_Decl)
     {
         ModelValue new_value;
         new_value.setDX_dB(state.getDX__dr0_dv0_dM());
@@ -362,7 +362,7 @@ public:
     //        for (star_index = 0; star_index < stars.size(); star_index++) {
     //            cout << "Star " << star_index + 1 << "\n";
     //            for (auto state : init_states[star_index]) {
-    //                for (double& b : state)
+    //                for (long double& b : state)
     //                    cout << b << " ";
     //                cout << "\n\n";
     //            }
@@ -374,8 +374,8 @@ public:
      */
     void printRes()
     {
-        double min_data_x = 100.0, min_data_y = 100.0;
-        double max_data_x = -100.0, max_data_y = -100.0;
+        long double min_data_x = 100.0, min_data_y = 100.0;
+        long double max_data_x = -100.0, max_data_y = -100.0;
         QtCharts::QLineSeries* first = new QtCharts::QLineSeries();
         QtCharts::QLineSeries* second = new QtCharts::QLineSeries();
         QtCharts::QLineSeries* third = new QtCharts::QLineSeries();

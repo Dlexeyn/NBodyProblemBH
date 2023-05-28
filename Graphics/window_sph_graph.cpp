@@ -15,7 +15,7 @@ Window_Sph_Graph::~Window_Sph_Graph()
     delete ui;
 }
 
-void Window_Sph_Graph::printGraph(QLineSeries* firstStar, QLineSeries* secondStar, QLineSeries* thirdStar, double& min_x, double& min_y, double& max_x, double& max_y)
+void Window_Sph_Graph::printGraph(QLineSeries* firstStar, QLineSeries* secondStar, QLineSeries* thirdStar, long double& min_x, long double& min_y, long double& max_x, long double& max_y)
 {
     std::vector<QColor> colors = { Qt::green, Qt::blue, Qt::red };
     firstStar->setColor(colors[0]); // S2

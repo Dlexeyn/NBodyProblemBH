@@ -11,18 +11,18 @@ using namespace std;
 class Matrix {
     int sizeN;
     int sizeM;
-    vector<vector<double>> matrix;
+    vector<vector<long double>> matrix;
 
 public:
-    void setMatrix(const vector<vector<double>>& matrix);
+    void setMatrix(const vector<vector<long double>>& matrix);
 
-    void setElement(int y, int x, double value);
+    void setElement(int y, int x, long double value);
 
     Matrix(int sizeN, int sizeM);
 
     Matrix(const Matrix &copy);
 
-    vector<vector<double>> Get_Matrix() const
+    vector<vector<long double>> Get_Matrix() const
     {
         return this->matrix;
     }
@@ -37,7 +37,7 @@ public:
         return this->sizeM;
     }
 
-    vector<vector<double>> Get_matrix()
+    vector<vector<long double>> Get_matrix()
     {
         return this->matrix;
     }
@@ -60,7 +60,7 @@ public:
     }
     Matrix Cholesky_decomposition(const Matrix &A);
 
-    friend Matrix operator*(const double num, const Matrix& M)
+    friend Matrix operator*(const long double num, const Matrix& M)
     {
         Matrix Result = M;
         for (int i = 0; i < Result.sizeN; i++)
@@ -70,7 +70,7 @@ public:
         return Result;
     }
 
-    friend Matrix operator/(const Matrix& M, const double num)
+    friend Matrix operator/(const Matrix& M, const long double num)
     {
         Matrix Result = M;
         for (int i = 0; i < Result.sizeN; i++)
@@ -84,8 +84,6 @@ public:
     {
         if (M1.sizeM == M2.sizeN) {
             Matrix Result = Matrix(M1.sizeN, M2.sizeM);
-            vector<vector<double>> res(M1.sizeN, vector<double>(M2.sizeM));
-            Result.setMatrix(res);
             for (int i = 0; i < M1.sizeN; i++) {
                 for (int j = 0; j < M2.sizeM; j++) {
                     for (int k = 0; k < M1.sizeM; k++) {

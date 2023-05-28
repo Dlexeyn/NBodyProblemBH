@@ -5,16 +5,16 @@
 
 using namespace std;
 
-double operator*(const vector<double>& v1, const vector<double>& v2);
+long double operator*(const vector<long double>& v1, const vector<long double>& v2);
 
-vector<double> operator*(const double d, const vector<double>& v1);
+vector<long double> operator*(const long double d, const vector<long double>& v1);
 
-vector<double> operator*(const vector<double>& v1, const double d);
+vector<long double> operator*(const vector<long double>& v1, const long double d);
 
-vector<double> operator/(const vector<double>& v1, const double d);
+vector<long double> operator/(const vector<long double>& v1, const long double d);
 
-vector<double> operator-(const vector<double>& v1, const vector<double>& v2);
+vector<long double> operator-(const vector<long double>& v1, const vector<long double>& v2);
 
-vector<double> operator+(const vector<double>& v1, const vector<double>& v2);
+vector<long double> operator+(const vector<long double>& v1, const vector<long double>& v2);
 
 #endif // VECTORSOPERATIONS_HPP

@@ -14,17 +14,17 @@ class Star {
     vector<SimulationVector> history;
 
     // вектор для хранения RA и Decl
-    vector<pair<double, double>> spherical_history_model;
+    vector<pair<long double, long double>> spherical_history_model;
 
     // вектор для хранения наблюдаемых величин
-    vector<pair<double, pair<double, double>>> spherical_history_obs;
+    vector<pair<long double, pair<long double, long double>>> spherical_history_obs;
 
     int index;
 
     // последней запись в history
     SimulationVector prev_state;
 
-    vector<double> init_state;
+    vector<long double> init_state;
 
 public:
     Star(string name_file)
@@ -68,7 +68,7 @@ public:
      */
     int read_file(const string& name_file)
     {
-        double temp;
+        long double temp;
         ifstream in_file(name_file);
 
         prev_state.resizeX_vector(SIZE_VECTOR * 2);
@@ -97,7 +97,7 @@ public:
     {
         ifstream in(name_file);
         if (in.is_open()) {
-            double curDate = 0, curRA = 0, curDecl = 0;
+            long double curDate = 0, curRA = 0, curDecl = 0;
             int n;
             in >> index >> n;
             spherical_history_obs.resize(n);
@@ -144,16 +144,16 @@ public:
         return index;
     }
 
-    vector<pair<double, double>> getSpherical_history_model() const
+    vector<pair<long double, long double>> getSpherical_history_model() const
     {
         return spherical_history_model;
     }
-    vector<pair<double, pair<double, double>>> getSpherical_history_obs() const
+    vector<pair<long double, pair<long double, long double>>> getSpherical_history_obs() const
     {
         return spherical_history_obs;
     }
 
-    void add_state_to_sph_history(pair<double, double> new_state)
+    void add_state_to_sph_history(pair<long double, long double> new_state)
     {
         spherical_history_model.push_back(new_state);
     }
@@ -177,12 +177,12 @@ public:
     {
         return prev_state;
     }
-    vector<double>& getInit_state()
+    vector<long double>& getInit_state()
     {
         return init_state;
     }
 
-    void setInit_state(const vector<double>& newInit_state)
+    void setInit_state(const vector<long double>& newInit_state)
     {
         init_state = newInit_state;
     }

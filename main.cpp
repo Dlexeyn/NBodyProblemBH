@@ -14,6 +14,5 @@ int main(int argc, char* argv[])
     S38.saveHistoryToFile("s38_res.txt");
     S55.saveHistoryToFile("s55_res.txt");
     simulation.printRes();
-
     return a.exec();
 }

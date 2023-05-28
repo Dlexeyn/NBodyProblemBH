@@ -4,8 +4,8 @@
 Matrix Matrix::Transposition()
 {
     Matrix new_matrix = Matrix(sizeM, sizeN);
-    for (int i = 0; i < sizeN; ++i) {
-        for (int j = i; j < sizeM; ++j) {
+    for (int i = 0; i < sizeN; i++) {
+        for (int j = i; j < sizeM; j++) {
             new_matrix.setElement(i, j, matrix[j][i]);
             new_matrix.setElement(j, i, matrix[i][j]);
         }
@@ -34,12 +34,12 @@ Matrix& Matrix::operator=(const Matrix& M)
     return *this;
 }
 
-void Matrix::setMatrix(const vector<vector<double>>& matrix)
+void Matrix::setMatrix(const vector<vector<long double>>& matrix)
 {
     Matrix::matrix = matrix;
 }
 
-void Matrix::setElement(int y, int x, double value)
+void Matrix::setElement(int y, int x, long double value)
 {
     matrix[y][x] = value;
 }
@@ -83,14 +83,27 @@ Matrix Matrix::Cholesky_decomposition(const Matrix &A)
     }
     for (int i = 0; i < A.sizeN; i++) {
         for (int j = 0; j <= i; j++) {
-            double sum = 0;
+            long double sum = 0;
             for (int k = 0; k < j; k++)
-                sum += L.matrix[i][k] * L.matrix[j][k];
+                sum = std::fma(L.matrix[i][k], L.matrix[j][k],sum);
 
-            if (i == j)
-                L.matrix[i][j] = sqrt(A.matrix[i][i] - sum);
-            else
-                L.matrix[i][j] = (1.0 / L.matrix[j][j] * (A.matrix[i][j] - sum));
+            if (i == j){
+                long double temp = A.matrix[i][i] - sum;
+                if(temp<0){
+                    L.matrix[i][j]=0;
+                }
+                else
+                    L.matrix[i][j] = sqrt(temp);
+            }
+            else{
+                if(L.matrix[j][j] == 0){
+                    L.matrix[i][j] = 0;
+                }
+                else {
+                    L.matrix[i][j] = (1.0 / L.matrix[j][j] * (A.matrix[i][j] - sum));
+                }
+
+            }
         }
     }
     return L;

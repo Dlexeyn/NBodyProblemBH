@@ -1,7 +1,7 @@
 #include "ModelValue.hpp"
 // #include "Star"
 
-void ModelValue::setCortesian_pos(const std::vector<double>& X_vector)
+void ModelValue::setCortesian_pos(const std::vector<long double>& X_vector)
 {
     cortesian_pos.resize(SIZE_VECTOR);
     cortesian_pos[0] = X_vector[0];
@@ -9,7 +9,7 @@ void ModelValue::setCortesian_pos(const std::vector<double>& X_vector)
     cortesian_pos[2] = X_vector[2];
 }
 
-void ModelValue::setSpeed(const std::vector<double>& X_vector)
+void ModelValue::setSpeed(const std::vector<long double>& X_vector)
 {
     speed.resize(SIZE_VECTOR);
     speed[0] = X_vector[3];
@@ -43,22 +43,22 @@ Matrix* ModelValue::getDRA_Decl_dR()
     return &dRA_Decl_dR;
 }
 
-std::vector<double> ModelValue::getCortesian_pos() const
+std::vector<long double> ModelValue::getCortesian_pos() const
 {
     return cortesian_pos;
 }
 
-std::vector<double> ModelValue::getSpeed() const
+std::vector<long double> ModelValue::getSpeed() const
 {
     return speed;
 }
 
-void ModelValue::setRA(double newRA)
+void ModelValue::setRA(long double newRA)
 {
     RA = newRA;
 }
 
-void ModelValue::setDecl(double newDecl)
+void ModelValue::setDecl(long double newDecl)
 {
     Decl = newDecl;
 }

@@ -7,22 +7,22 @@
 #include <vector>
 
 class SimulationVector {
-    std::vector<double> X_vector;
+    std::vector<long double> X_vector;
 
     Matrix dX__dr0_dv0_dM = Matrix(6, 7);
 
 public:
     SimulationVector();
 
-    void setX_vector(const std::vector<double>& newX_vector);
+    void setX_vector(const std::vector<long double>& newX_vector);
 
     void clearX_vector();
 
-    void setElementX_vector(int index, double value);
+    void setElementX_vector(int index, long double value);
 
-    void setElementDX_matrix(int y, int x, double value);
+    void setElementDX_matrix(int y, int x, long double value);
 
-    std::vector<double> getX_vector() const;
+    std::vector<long double> getX_vector() const;
 
     void resizeX_vector(int new_size);
 
@@ -34,7 +34,7 @@ public:
         return res;
     }
 
-    friend SimulationVector operator*(const double num, const SimulationVector& V)
+    friend SimulationVector operator*(const long double num, const SimulationVector& V)
     {
         SimulationVector res;
         res.setX_vector(num * V.getX_vector());
@@ -42,7 +42,7 @@ public:
         return res;
     }
 
-    friend SimulationVector operator/(const SimulationVector& V, const double num)
+    friend SimulationVector operator/(const SimulationVector& V, const long double num)
     {
         SimulationVector res;
         res.setX_vector(V.getX_vector() / num);

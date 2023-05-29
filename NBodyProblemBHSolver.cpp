@@ -56,8 +56,8 @@ public:
 
     Matrix calculateDF_dX(const vector<long double>& X, const long double& r_pos, Matrix& dF_dX)
     {
-        long double M = stars[star_index]->getInit_state()[6];
-        //long double M = M_BH;
+        //long double M = stars[star_index]->getInit_state()[6];
+        long double M = M_BH;
         for (int i = 3; i < dF_dX.Get_sizeN(); i++) {
             for (int j = 0; j < SIZE_VECTOR; j++) {
                 if (i == j + 3) {
@@ -105,8 +105,8 @@ public:
     void equationPN(const SimulationVector& state, SimulationVector& answer)
     {
         long double r_pos = 0, r_speed = 0, prod_vectors = 0;
-        long double M = init_states[star_index][6];
-        ///long double M = M_BH;
+        //long double M = init_states[star_index][6];
+        long double M = M_BH;
         answer.clearX_vector();
         vector<long double> accel(SIZE_VECTOR);
 
@@ -133,9 +133,9 @@ public:
             answer.setElementX_vector(i, dt * accel[i - 3]); // dv = a * dt
         }
 
-        Matrix DF__dr0_dv0_dM = Matrix(6, 7);
+        Matrix DF__dr0_dv0_dM = Matrix(6, Size_Matrix_B);
 
-        Matrix dF__dr0_dv0_dM = Matrix(6, 7);
+        Matrix dF__dr0_dv0_dM = Matrix(6, Size_Matrix_B);
 
         Matrix dF__dr_dv = Matrix(6, 6);
 
@@ -283,14 +283,14 @@ public:
         GausNewtonSolver GNSolver;
         int num_rows = int(cur_star->getSpherical_history_obs().size());
         Matrix R = Matrix(num_rows * 2, 1);
-        Matrix A = Matrix(num_rows * 2, 7);
+        Matrix A = Matrix(num_rows * 2, Size_Matrix_B);
 
         long double d_RA = 0, d_Decl = 0;
 
         for (int i = 0; i < num_rows; i++) {
             GNSolver.calculate_dRA_Decl_dR(value_vector[i]);
-            Matrix dR_dB = Matrix(2, 7);
-            Matrix dX_dB = Matrix(3, 7);
+            Matrix dR_dB = Matrix(2, Size_Matrix_B);
+            Matrix dX_dB = Matrix(3, Size_Matrix_B);
             auto RA_Decl_obs = cur_star->getSpherical_history_obs()[i];
 
             int temp = int(round(RA_Decl_obs.first * 365));
@@ -310,7 +310,7 @@ public:
                 d_RA = d_RA + sign * 2 * PI;
             }
 
-            for (int j = 0; j < 7; j++) {
+            for (int j = 0; j < Size_Matrix_B; j++) {
                 A.setElement(2 * i, j, dR_dB.Get_matrix()[0][j]);
                 A.setElement(2 * i + 1, j, dR_dB.Get_matrix()[1][j]);
             }
@@ -339,7 +339,7 @@ public:
             cout << "Итерация " << i + 1 << " :\n";
             runSimulation(HOUR * DAY * YEAR * 20);
             // inverse_problem
-            for (size_t star_index = 0; star_index < 1; star_index++) {
+            for (size_t star_index = 0; star_index < 3; star_index++) {
                 inverseTask(stars[star_index], values[star_index]);
             }
 

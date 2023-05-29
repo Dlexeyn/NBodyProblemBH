@@ -88,7 +88,7 @@ Matrix Matrix::Cholesky_decomposition(const Matrix &A)
                 sum = std::fma(L.matrix[i][k], L.matrix[j][k],sum);
 
             if (i == j){
-                long double temp = A.matrix[i][i] - sum;
+                long double temp = abs(A.matrix[i][i] - sum);
                 if(temp<0){
                     L.matrix[i][j]=0;
                 }

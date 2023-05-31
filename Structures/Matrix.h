@@ -18,6 +18,8 @@ public:
 
     void setElement(int y, int x, long double value);
 
+    void reset();
+
     Matrix(int sizeN, int sizeM);
 
     Matrix(const Matrix &copy);

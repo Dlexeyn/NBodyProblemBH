@@ -1,6 +1,7 @@
 #include "Options/Constants.h"
 #include "SimulationVector.hpp"
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <queue>
 #include <stdexcept>
@@ -26,6 +27,8 @@ class Star {
 
     vector<long double> init_state;
 
+    string name;
+
 public:
     Star(string name_file)
     {
@@ -36,12 +39,14 @@ public:
             exit(EXIT_FAILURE);
         }
 
+        name = name_file;
+
         init_state = prev_state.getX_vector();
         init_state.push_back(M_BH);
 
         cout << "Init state: \n";
-
-        for(int i = 0; i < init_state.size(); i++)
+        cout << setprecision(15);
+        for(size_t i = 0; i < init_state.size(); i++)
             cout << init_state[i] << " ";
         cout << "\n";
 
@@ -193,5 +198,9 @@ public:
         for (int i =0; i< Size_Matrix_B;i++){
             init_state[i] = newInit_state[i];
         }
+    }
+    string getName() const
+    {
+        return name;
     }
 };

@@ -12,5 +12,5 @@ int main(int argc, char* argv[])
     S2.saveHistoryToFile("s2_res.txt");
     S38.saveHistoryToFile("s38_res.txt");
     S55.saveHistoryToFile("s55_res.txt");
-    return a.exec();
+    return 0;
 }

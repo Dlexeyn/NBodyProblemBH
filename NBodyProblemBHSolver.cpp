@@ -415,18 +415,6 @@ public:
             }
         }
 
-        //    void printInits()
-        //    {
-        //        for (star_index = 0; star_index < stars.size(); star_index++) {
-        //            cout << "Star " << star_index + 1 << "\n";
-        //            for (auto state : init_states[star_index]) {
-        //                for (long double& b : state)
-        //                    cout << b << " ";
-        //                cout << "\n\n";
-        //            }
-        //        }
-        //    }
-
         /**
          * @brief printRes - Функция для формирования вывода графика в окне MainWindow
          */

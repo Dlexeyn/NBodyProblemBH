@@ -6,26 +6,35 @@
 #include <vector>
 
 class ModelValue {
-    Matrix dRA_Decl_dB = Matrix(2, 7);
-    Matrix dRA_Decl_dR = Matrix(2, 6);
-    Matrix dR_dB = Matrix(6, 7); // dx/db
+    Matrix dRA_Decl_dR = Matrix(2, 3);
 
-    std::vector<double> cortesian_pos;
-    std::vector<double> speed;
+    Matrix dX_dB = Matrix(6, Size_Matrix_B);
 
-    double RA;
-    double Decl;
+    std::vector<long double> cortesian_pos;
+    std::vector<long double> speed;
+
+    long double RA;
+    long double Decl;
 
 public:
     ModelValue();
-    Matrix* getDRA_Decl_dR();
-    std::vector<double> getCortesian_pos() const;
-    std::vector<double> getSpeed() const;
-    void setRA(double newRA);
-    void setDecl(double newDecl);
-    void setDR_dB(const Matrix& newDR_dB);
-    void setCortesian_pos(const std::vector<double>& X_vector);
-    void setSpeed(const std::vector<double>& X_vector);
+    std::vector<long double> getCortesian_pos() const;
+
+    std::vector<long double> getSpeed() const;
+
+    void setRA(long double newRA);
+
+    void setDecl(long double newDecl);
+
+    void setCortesian_pos(const std::vector<long double>& X_vector);
+
+    void setSpeed(const std::vector<long double>& X_vector);
+
+    Matrix *getDRA_Decl_dR();
+    void setDRA_Decl_dR(const Matrix& newDRA_Decl_dR);
+
+    Matrix getDX_dB() const;
+    void setDX_dB(const Matrix& newDX_dB);
 };
 
 #endif // MODELVALUE_H

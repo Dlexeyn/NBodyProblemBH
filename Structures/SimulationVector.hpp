@@ -7,57 +7,62 @@
 #include <vector>
 
 class SimulationVector {
-    std::vector<double> X_vector;
+    std::vector<long double> X_vector;
 
-    Matrix dX_dB = Matrix(6, 7);
-
-    Matrix dF_dX = Matrix(6, 6);
+    Matrix dX__dr0_dv0_dM = Matrix(6, Size_Matrix_B);
 
 public:
     SimulationVector();
 
-    void setX_vector(const std::vector<double>& newX_vector);
+    void setX_vector(const std::vector<long double>& newX_vector);
 
     void clearX_vector();
 
-    void setElementX_vector(int index, double value);
+    void setElementX_vector(int index, long double value);
 
-    std::vector<double> getX_vector() const;
+    void setElementDX_matrix(int y, int x, long double value);
+
+    std::vector<long double> getX_vector() const;
+
+    void resizeX_vector(int new_size);
 
     friend SimulationVector operator+(const SimulationVector& V1, const SimulationVector& V2)
     {
         SimulationVector res;
         res.setX_vector(V1.getX_vector() + V2.getX_vector());
-        res.setDF_dX(V1.dF_dX + V2.dF_dX);
-        res.setDX_dB(V1.dX_dB + V2.dX_dB);
+        res.setDX__dr0_dv0_dM(V1.dX__dr0_dv0_dM + V2.dX__dr0_dv0_dM);
         return res;
     }
 
-    friend SimulationVector operator*(const double num, const SimulationVector& V)
+    friend SimulationVector operator*(const long double num, const SimulationVector& V)
     {
         SimulationVector res;
         res.setX_vector(num * V.getX_vector());
-        res.setDF_dX(num * V.dF_dX);
-        res.setDX_dB(num * V.dX_dB);
+        res.setDX__dr0_dv0_dM(num * V.dX__dr0_dv0_dM);
         return res;
     }
 
-    friend SimulationVector operator/(const SimulationVector& V, const double num)
+    friend SimulationVector operator/(const SimulationVector& V, const long double num)
     {
         SimulationVector res;
         res.setX_vector(V.getX_vector() / num);
-        res.setDF_dX(V.dF_dX / num);
-        res.setDX_dB(V.dX_dB / num);
+        res.setDX__dr0_dv0_dM(V.dX__dr0_dv0_dM / num);
         return res;
     }
 
-    Matrix getDX_dB() const;
+    SimulationVector& operator=(const SimulationVector& V)
+    {
+        X_vector = V.getX_vector();
+        setDX__dr0_dv0_dM(V.getDX__dr0_dv0_dM());
+        return *this;
+    }
+    long double operator[](int i) const
+    {
+        return X_vector[i];
+    }
+    Matrix getDX__dr0_dv0_dM() const;
 
-    void setDX_dB(const Matrix& newDX_dB);
-
-    Matrix getDF_dX() const;
-
-    void setDF_dX(const Matrix& newDF_dX);
+    void setDX__dr0_dv0_dM(const Matrix& newDX__dr0_dv0_dM);
 };
 
 #endif // SIMULATIONVECTOR_HPP

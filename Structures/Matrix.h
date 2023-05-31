@@ -11,31 +11,42 @@ using namespace std;
 class Matrix {
     int sizeN;
     int sizeM;
-    vector<vector<double>> matrix;
+    vector<vector<long double>> matrix;
 
 public:
-    void setMatrix(const vector<vector<double>>& matrix);
+    void setMatrix(const vector<vector<long double>>& matrix);
 
-    void setElement(int y, int x, double value);
+    void setElement(int y, int x, long double value);
+
+    void reset();
 
     Matrix(int sizeN, int sizeM);
 
-    int Get_sizeN()
-    {
-        return this->sizeN;
-    }
+    Matrix(const Matrix &copy);
 
-    int Get_sizeM()
-    {
-        return this->sizeM;
-    }
-
-    vector<vector<double>> Get_matrix()
+    vector<vector<long double>> Get_Matrix() const
     {
         return this->matrix;
     }
 
-    void Transposition();
+    int Get_sizeN() const
+    {
+        return this->sizeN;
+    }
+
+    int Get_sizeM() const
+    {
+        return this->sizeM;
+    }
+
+    vector<vector<long double>> Get_matrix()
+    {
+        return this->matrix;
+    }
+
+    Matrix Transposition();
+
+    Matrix& operator=(const Matrix& M);
 
     friend Matrix operator+(const Matrix& M1, const Matrix& M2)
     {
@@ -49,11 +60,11 @@ public:
         } else
             exit(1);
     }
-    Matrix Cholesky_decomposition(Matrix A);
+    Matrix Cholesky_decomposition(const Matrix &A);
 
-    friend Matrix operator*(const double num, const Matrix& M)
+    friend Matrix operator*(const long double num, const Matrix& M)
     {
-        Matrix Result = Matrix(M.sizeN, M.sizeM);
+        Matrix Result = M;
         for (int i = 0; i < Result.sizeN; i++)
             for (int j = 0; j < Result.sizeM; j++) {
                 Result.matrix[i][j] *= num;
@@ -61,9 +72,9 @@ public:
         return Result;
     }
 
-    friend Matrix operator/(const Matrix& M, const double num)
+    friend Matrix operator/(const Matrix& M, const long double num)
     {
-        Matrix Result = Matrix(M.sizeN, M.sizeM);
+        Matrix Result = M;
         for (int i = 0; i < Result.sizeN; i++)
             for (int j = 0; j < Result.sizeM; j++) {
                 Result.matrix[i][j] /= num;
@@ -75,8 +86,6 @@ public:
     {
         if (M1.sizeM == M2.sizeN) {
             Matrix Result = Matrix(M1.sizeN, M2.sizeM);
-            vector<vector<double>> res(M1.sizeN, vector<double>(M2.sizeM));
-            Result.setMatrix(res);
             for (int i = 0; i < M1.sizeN; i++) {
                 for (int j = 0; j < M2.sizeM; j++) {
                     for (int k = 0; k < M1.sizeM; k++) {
@@ -87,6 +96,9 @@ public:
             return Result;
         }
         exit(1);
+    }
+    ~Matrix(){
+        matrix.clear();
     }
 };
 

@@ -1,7 +1,9 @@
 #include "Options/Constants.h"
 #include "SimulationVector.hpp"
 #include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <queue>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -11,11 +13,21 @@ using namespace std;
 class Star {
     // вектор для хранения всех позиций
     vector<SimulationVector> history;
-    vector<pair<double, double>> spherical_history_model;
-    vector<pair<double, pair<double, double>>> spherical_history_obs;
-    // вектор для хранения последней записи в history
+
+    // вектор для хранения RA и Decl
+    vector<pair<long double, long double>> spherical_history_model;
+
+    // вектор для хранения наблюдаемых величин
+    vector<pair<long double, pair<long double, long double>>> spherical_history_obs;
+
     int index;
+
+    // последней запись в history
     SimulationVector prev_state;
+
+    vector<long double> init_state;
+
+    string name;
 
 public:
     Star(string name_file)
@@ -26,8 +38,37 @@ public:
         if (readRA_Dcel_in_star(name_file + "_RA_Decl.txt")) {
             exit(EXIT_FAILURE);
         }
+
+        name = name_file;
+
+        init_state = prev_state.getX_vector();
+        init_state.push_back(M_BH);
+
+        cout << "Init state: \n";
+        cout << setprecision(15);
+        for(size_t i = 0; i < init_state.size(); i++)
+            cout << init_state[i] << " ";
+        cout << "\n";
+
+        // E matrix on 0 step
+        for(size_t y = 0; y < 6; y++)
+        {
+            for(size_t x = 0; x < Size_Matrix_B; x++)
+            {
+                if(x == y)
+                {
+                    prev_state.setElementDX_matrix(y, x, 1);
+                }
+            }
+        }
     }
 
+    void clearHistory()
+    {
+        history.clear();
+        prev_state.setX_vector(init_state);
+        spherical_history_model.clear();
+    }
     /**
      * @brief read_file - функция чтения начальных данных из
      * файла для звезды
@@ -38,19 +79,14 @@ public:
      */
     int read_file(const string& name_file)
     {
-        string temp_line;
+        long double temp;
         ifstream in_file(name_file);
 
+        prev_state.resizeX_vector(SIZE_VECTOR * 2);
         if (in_file.is_open()) {
-            prev_state.getX_vector().resize(SIZE_VECTOR * 2);
-            int index = 0;
-            while (getline(in_file, temp_line)) {
-                try {
-                    prev_state.setElementX_vector(index++, stod(temp_line));
-                } catch (std::invalid_argument const& ex) {
-                    std::cout << name_file << ": incorrect line " << index + 1 << "\n";
-                    return -2;
-                }
+            for (int i = 0; i < SIZE_VECTOR * 2; i++) {
+                in_file >> temp;
+                prev_state.setElementX_vector(i, temp);
             }
         } else
             return -1;
@@ -59,12 +95,11 @@ public:
         return 0;
     }
 
-    vector<int> findIndexModelValue()
+    priority_queue<int, vector<int>, greater<int>> findIndexModelValue()
     {
-        vector<int> res;
-        res.resize(spherical_history_obs.size());
+        priority_queue<int, vector<int>, greater<int>> res;
         for (size_t i = 0; i < spherical_history_obs.size(); i++) {
-            res[i] = (int(round(spherical_history_obs[i].first * 365 * 24)) + index) % Model_Size;
+            res.push((int(round(spherical_history_obs[i].first * 365)) + index) % Model_Size);
         }
         return res;
     }
@@ -73,7 +108,7 @@ public:
     {
         ifstream in(name_file);
         if (in.is_open()) {
-            double curDate = 0, curRA = 0, curDecl = 0;
+            long double curDate = 0, curRA = 0, curDecl = 0;
             int n;
             in >> index >> n;
             spherical_history_obs.resize(n);
@@ -96,29 +131,40 @@ public:
     void saveHistoryToFile(string nameFile)
     {
         ofstream out(nameFile);
-        if (out.is_open()) {
-            for (const auto& state : history) {
-                auto X = state.getX_vector();
-                for (size_t index = 0; index < X.size() - 1; index++) {
-                    out << X[index] << " ";
-                }
-                out << X.back() << "\n";
+        if (out.is_open()){
+            for(auto it: spherical_history_model){
+                out<< it.first <<" "<< it.second<< endl;
             }
         }
-
         out.close();
+//        ofstream out(nameFile);
+//        if (out.is_open()) {
+//            for (const auto& state : history) {
+//                auto X = state.getX_vector();
+//                for (size_t index = 0; index < X.size() - 1; index++) {
+//                    out << X[index] << " ";
+//                }
+//                out << X.back() << "\n";
+//            }
+//        }
+
+//        out.close();
+    }
+    int GetIndex()
+    {
+        return index;
     }
 
-    vector<pair<double, double>> getSpherical_history_model() const
+    vector<pair<long double, long double>> getSpherical_history_model() const
     {
         return spherical_history_model;
     }
-    vector<pair<double, pair<double, double>>> getSpherical_history_obs() const
+    vector<pair<long double, pair<long double, long double>>> getSpherical_history_obs() const
     {
         return spherical_history_obs;
     }
 
-    void add_state_to_sph_history(pair<double, double> new_state)
+    void add_state_to_sph_history(pair<long double, long double> new_state)
     {
         spherical_history_model.push_back(new_state);
     }
@@ -141,5 +187,20 @@ public:
     SimulationVector getPrev_state() const
     {
         return prev_state;
+    }
+    vector<long double>& getInit_state()
+    {
+        return init_state;
+    }
+
+    void setInit_state(const vector<long double>& newInit_state)
+    {
+        for (int i =0; i< Size_Matrix_B;i++){
+            init_state[i] = newInit_state[i];
+        }
+    }
+    string getName() const
+    {
+        return name;
     }
 };

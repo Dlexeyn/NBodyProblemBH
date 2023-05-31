@@ -44,6 +44,16 @@ void Matrix::setElement(int y, int x, long double value)
     matrix[y][x] = value;
 }
 
+void Matrix::reset()
+{
+    for(int y = 0; y < sizeN; y++)
+    {
+        for (int x = 0; x < sizeM; x++) {
+            matrix[y][x] = 0;
+        }
+    }
+}
+
 Matrix::Matrix(int sizeN, int sizeM)
 {
     this->sizeM = sizeM;

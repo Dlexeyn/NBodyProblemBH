@@ -1,8 +1,8 @@
 #include "GausNewtonSolver.hpp"
+#include "Graphics/window_sph_graph.hpp"
 #include "Options/Constants.h"
 #include "Structures/ModelValue.hpp"
 #include "Structures/SimulationVector.hpp"
-#include "Graphics/window_sph_graph.hpp"
 
 #include <QApplication>
 #include <QDebug>
@@ -10,12 +10,13 @@
 #include <QPointF>
 #include <cmath>
 #include <fstream>
-#include <vector>
 #include <iomanip>
+#include <vector>
 
 using namespace std;
 
 class Simulation {
+
 private:
     // вектор указателей на объекты класса Star
     vector<Star*> stars;
@@ -35,7 +36,16 @@ private:
 
     size_t star_index;
 
-    int f =1;
+    // Матрицы для численного интегрирования
+    Matrix DF__dr0_dv0_dM = Matrix(6, Size_Matrix_B);
+
+    Matrix dF__dr0_dv0_dM = Matrix(6, Size_Matrix_B);
+
+    Matrix dF__dr_dv = Matrix(6, 6);
+
+    vector<long double> accel;
+
+    int flag = 10;
 
 public:
     Simulation(Star* S2, Star* S38, Star* S55, long double dt)
@@ -46,13 +56,15 @@ public:
             init_states.push_back(star->getInit_state());
 
         window_sph = new Window_Sph_Graph(nullptr);
+
+        accel.resize(SIZE_VECTOR);
     }
 
     void calculateDF_dB(const vector<long double>& X, const long double& r_pos, Matrix& dF_dB)
     {
-//         da/dM = - G r / |r| ^ 3
+        //         da/dM = - G r / |r| ^ 3
         for (int i = 0; i < SIZE_VECTOR; i++) {
-            long double debug_var = -(X[i]*G) / pow(r_pos, 3);
+            long double debug_var = -(X[i] * G) / pow(r_pos, 3);
             dF_dB.setElement(3 + i, 6, debug_var);
         }
     }
@@ -60,7 +72,7 @@ public:
     Matrix calculateDF_dX(const vector<long double>& X, const long double& r_pos, Matrix& dF_dX)
     {
         long double M = stars[star_index]->getInit_state()[6];
-        //long double M = M_BH;
+        // long double M = M_BH;
         for (int i = 3; i < dF_dX.Get_sizeN(); i++) {
             for (int j = 0; j < SIZE_VECTOR; j++) {
                 if (i == j + 3) {
@@ -109,9 +121,10 @@ public:
     {
         long double r_pos = 0, r_speed = 0, prod_vectors = 0;
         long double M = init_states[star_index][6];
-        //long double M = M_BH;
+        // long double M = M_BH;
         answer.clearX_vector();
-        vector<long double> accel(SIZE_VECTOR);
+        // vector<long double> accel(SIZE_VECTOR);
+        accel.clear();
 
         for (int i = 0; i < SIZE_VECTOR; ++i) {
             answer.setElementX_vector(i, dt * state.getX_vector()[i + SIZE_VECTOR]); // dr = v * dt
@@ -136,11 +149,15 @@ public:
             answer.setElementX_vector(i, dt * accel[i - 3]); // dv = a * dt
         }
 
-        Matrix DF__dr0_dv0_dM = Matrix(6, Size_Matrix_B);
+        //        Matrix DF__dr0_dv0_dM = Matrix(6, Size_Matrix_B);
 
-        Matrix dF__dr0_dv0_dM = Matrix(6, Size_Matrix_B);
+        //        Matrix dF__dr0_dv0_dM = Matrix(6, Size_Matrix_B);
 
-        Matrix dF__dr_dv = Matrix(6, 6);
+        //        Matrix dF__dr_dv = Matrix(6, 6);
+
+        DF__dr0_dv0_dM.reset();
+        dF__dr0_dv0_dM.reset();
+        dF__dr_dv.reset();
 
         calculateDF_dB(state.getX_vector(), r_pos, dF__dr0_dv0_dM);
 
@@ -237,11 +254,12 @@ public:
      */
     void runSimulation(long double time)
     {
-        cout << "Simulation is running...\n";
         int steps = int(time / dt);
         int counter = 0;
 
         vector<SimulationVector> stars_result(stars.size());
+        SimulationVector* cur_state;
+        pair<long double, long double> RA_Decl;
         vector<priority_queue<int, vector<int>, greater<int>>> place_numbers;
 
         values.resize(stars.size());
@@ -252,21 +270,21 @@ public:
         while (steps > 0) {
             for (star_index = 0; star_index < stars.size(); star_index++) {
                 auto star = stars[star_index];
-                auto& cur_state = stars_result[star_index];
-                RK4(star->getPrev_state(), cur_state);
-                auto RA_Decl = translate_to_spherical(cur_state.getX_vector());
+                cur_state = &stars_result[star_index];
+                RK4(star->getPrev_state(), *cur_state);
+                RA_Decl = translate_to_spherical(cur_state->getX_vector());
 
-                star->add_state_to_history(cur_state);
+                star->add_state_to_history(*cur_state);
                 star->add_state_to_sph_history(RA_Decl);
-                star->setPrev_state(cur_state);
+                star->setPrev_state(*cur_state);
 
                 if (place_numbers[star_index].top() == counter) {
                     place_numbers[star_index].pop();
-                    addNewModelValue(values[star_index], cur_state, RA_Decl);
+                    addNewModelValue(values[star_index], *cur_state, RA_Decl);
                 }
             }
-//            if (isAllCalculated(place_numbers))
-//                break;
+            if (isAllCalculated(place_numbers))
+                break;
             steps--;
             counter++;
         }
@@ -301,7 +319,10 @@ public:
             int position = (cur_star->GetIndex() + temp) % cur_star->getSpherical_history_model().size();
 
             auto RA_Decl_model = cur_star->getSpherical_history_model()[position];
+            RA_Decl_model.first *= flag;
+            RA_Decl_model.second *= flag;
 
+            // обрезаем матрицу до размера 3 x 7
             transformDR_DB(dX_dB, value_vector[i]);
             dR_dB = *value_vector[i].getDRA_Decl_dR() * dX_dB;
 
@@ -318,110 +339,128 @@ public:
                 A.setElement(2 * i, j, dR_dB.Get_matrix()[0][j]);
                 A.setElement(2 * i + 1, j, dR_dB.Get_matrix()[1][j]);
             }
-            sum_RA+=pow(d_RA,2);
-            sum_Decl+=pow(d_Decl,2);
+            sum_RA += d_RA;
+            sum_Decl += d_Decl;
             R.setElement(2 * i, 0, d_RA);
             R.setElement(2 * i + 1, 0, d_Decl);
         }
-        cout << setprecision(10);
-        if(f == 1){
-            f=0;
+
+        long double RA_avg = sum_RA / num_rows;
+        long double Decl_avg = sum_Decl / num_rows;
+        long double dev_RA = 0, dev_Decl = 0;
+
+        for (int i = 0; i < num_rows; i++) {
+            auto RA_i = R.Get_Matrix()[2 * i][0];
+            auto Decl_i = R.Get_Matrix()[2 * i + 1][0];
+            dev_RA += pow(RA_i - RA_avg, 2);
+            dev_Decl += pow(Decl_i - Decl_avg, 2);
         }
-        else{
-            cout<<"Среднее квадратичное отклонение между Ra "<<sqrtl(sum_RA)<<"\n";
-            cout<<"Среднее квадратичное отклонение между Decl "<<sqrtl(sum_Decl)<<"\n";
+
+        dev_RA /= num_rows;
+        dev_Decl /= num_rows;
+
+        cout << setprecision(20);
+        if (flag == 10) {
+            flag = 1;
+            cout << "\t\tСреднее квадратичное отклонение между Ra " << sqrtl(dev_RA) << "\n";
+            cout << "\t\tСреднее квадратичное отклонение между Decl " << sqrtl(dev_Decl) << "\n";
+        } else {
+            cout << "\t\tСреднее квадратичное отклонение между Ra " << sqrtl(dev_RA) << "\n";
+            cout << "\t\tСреднее квадратичное отклонение между Decl " << sqrtl(dev_Decl) << "\n";
+            cur_star->setInit_state(GNSolver.Gauss_Newton(cur_star->getInit_state(), A, R));
         }
-        cur_star->setInit_state(GNSolver.Gauss_Newton(cur_star->getInit_state(), A, R));
     }
 
-    void addNewModelValue(vector<ModelValue>& MV_vector, const SimulationVector& state, const pair<long double, long double>& RA_Decl)
-    {
-        ModelValue new_value;
-        new_value.setDX_dB(state.getDX__dr0_dv0_dM());
-        new_value.setCortesian_pos(state.getX_vector());
-        new_value.setSpeed(state.getX_vector());
-        new_value.setRA(RA_Decl.first);
-        new_value.setDecl(RA_Decl.second);
-        MV_vector.push_back(new_value);
-    }
+        void addNewModelValue(vector<ModelValue> & MV_vector, const SimulationVector& state, const pair<long double, long double>& RA_Decl)
+        {
+            ModelValue new_value;
+            new_value.setDX_dB(state.getDX__dr0_dv0_dM());
+            new_value.setCortesian_pos(state.getX_vector());
+            new_value.setSpeed(state.getX_vector());
+            new_value.setRA(RA_Decl.first);
+            new_value.setDecl(RA_Decl.second);
+            MV_vector.push_back(new_value);
+        }
 
-    void generalSolution()
-    {
-        int i = 0;
-        while (i < Iters_Num) {
-            cout << "Итерация " << i + 1 << " :\n";
-            runSimulation(HOUR * DAY * YEAR * 20);
-            // inverse_problem
-            for (size_t star_index = 0; star_index < 1; star_index++) {
-                inverseTask(stars[star_index], values[star_index]);
-                cout<<"IndexStar"<<star_index<<"\n";
-                auto cur_init_state = stars[star_index]->getInit_state();
-                for(int i = 0;i<Size_Matrix_B;i++){
-                    cout << cur_init_state[i] << " ";
+        void generalSolution()
+        {
+            int i = 0;
+            while (i < Iters_Num) {
+                cout << "Итерация " << i + 1 << " :\n";
+                runSimulation(HOUR * DAY * YEAR * 20);
+                // inverse_problem
+                for (size_t star_index = 0; star_index < 1; star_index++) {
+                    cout << "\tStar " << stars[star_index]->getName() << "\n";
+                    inverseTask(stars[star_index], values[star_index]);
+                    auto cur_init_state = stars[star_index]->getInit_state();
+                    cout << "\t\tNew init state:\n\t\t";
+                    for (int i = 0; i < Size_Matrix_B; i++) {
+                        cout << cur_init_state[i] << " ";
+                        if (i == 2 or i == 5)
+                            cout << "\n\t\t";
+                    }
+                    cout << "\n";
                 }
-                cout << "\n";
-            }
-            i++;
-            clearData();
-        }
-    }
-
-    void clearData()
-    {
-        values.clear();
-        for (star_index = 0; star_index < stars.size(); star_index++) {
-            stars[star_index]->clearHistory();
-            init_states[star_index] = stars[star_index]->getInit_state();
-        }
-    }
-
-    //    void printInits()
-    //    {
-    //        for (star_index = 0; star_index < stars.size(); star_index++) {
-    //            cout << "Star " << star_index + 1 << "\n";
-    //            for (auto state : init_states[star_index]) {
-    //                for (long double& b : state)
-    //                    cout << b << " ";
-    //                cout << "\n\n";
-    //            }
-    //        }
-    //    }
-
-    /**
-     * @brief printRes - Функция для формирования вывода графика в окне MainWindow
-     */
-    void printRes()
-    {
-        long double min_data_x = 100.0, min_data_y = 100.0;
-        long double max_data_x = -100.0, max_data_y = -100.0;
-        QtCharts::QLineSeries* first = new QtCharts::QLineSeries();
-        QtCharts::QLineSeries* second = new QtCharts::QLineSeries();
-        QtCharts::QLineSeries* third = new QtCharts::QLineSeries();
-
-        QtCharts::QLineSeries* first_obs = new QtCharts::QLineSeries();
-        QtCharts::QLineSeries* second_obs = new QtCharts::QLineSeries();
-        QtCharts::QLineSeries* third_obs = new QtCharts::QLineSeries();
-
-        vector<QtCharts::QLineSeries*> data_sph = { first, second, third };
-        vector<QtCharts::QLineSeries*> data_sph_obs = { first_obs, second_obs, third_obs };
-
-        for (size_t index = 0; index < stars.size(); index++) {
-
-            for (auto state_sph : stars[index]->getSpherical_history_model()) {
-                min_data_x = (min_data_x > state_sph.first) ? state_sph.first : min_data_x;
-                min_data_y = (min_data_y > state_sph.second) ? state_sph.second : min_data_y;
-
-                max_data_x = (max_data_x < state_sph.first) ? state_sph.first : max_data_x;
-                max_data_y = (max_data_y < state_sph.second) ? state_sph.second : max_data_y;
-                *data_sph[index] << QPointF(state_sph.first, state_sph.second);
-            }
-
-            for (auto state_sph : stars[index]->getSpherical_history_obs()) {
-                *data_sph_obs[index] << QPointF(state_sph.second.first, state_sph.second.second);
+                i++;
+                clearData();
             }
         }
 
+        void clearData()
+        {
+            values.clear();
+            for (star_index = 0; star_index < stars.size(); star_index++) {
+                stars[star_index]->clearHistory();
+                init_states[star_index] = stars[star_index]->getInit_state();
+            }
+        }
 
-        window_sph->printGraph(first, second, third, first_obs, second_obs, third_obs, min_data_x, min_data_y, max_data_x, max_data_y);
-    }
-};
+        //    void printInits()
+        //    {
+        //        for (star_index = 0; star_index < stars.size(); star_index++) {
+        //            cout << "Star " << star_index + 1 << "\n";
+        //            for (auto state : init_states[star_index]) {
+        //                for (long double& b : state)
+        //                    cout << b << " ";
+        //                cout << "\n\n";
+        //            }
+        //        }
+        //    }
+
+        /**
+         * @brief printRes - Функция для формирования вывода графика в окне MainWindow
+         */
+        void printRes()
+        {
+            long double min_data_x = 100.0, min_data_y = 100.0;
+            long double max_data_x = -100.0, max_data_y = -100.0;
+            QtCharts::QLineSeries* first = new QtCharts::QLineSeries();
+            QtCharts::QLineSeries* second = new QtCharts::QLineSeries();
+            QtCharts::QLineSeries* third = new QtCharts::QLineSeries();
+
+            QtCharts::QLineSeries* first_obs = new QtCharts::QLineSeries();
+            QtCharts::QLineSeries* second_obs = new QtCharts::QLineSeries();
+            QtCharts::QLineSeries* third_obs = new QtCharts::QLineSeries();
+
+            vector<QtCharts::QLineSeries*> data_sph = { first, second, third };
+            vector<QtCharts::QLineSeries*> data_sph_obs = { first_obs, second_obs, third_obs };
+
+            for (size_t index = 0; index < stars.size(); index++) {
+
+                for (auto state_sph : stars[index]->getSpherical_history_model()) {
+                    min_data_x = (min_data_x > state_sph.first) ? state_sph.first : min_data_x;
+                    min_data_y = (min_data_y > state_sph.second) ? state_sph.second : min_data_y;
+
+                    max_data_x = (max_data_x < state_sph.first) ? state_sph.first : max_data_x;
+                    max_data_y = (max_data_y < state_sph.second) ? state_sph.second : max_data_y;
+                    *data_sph[index] << QPointF(state_sph.first, state_sph.second);
+                }
+
+                for (auto state_sph : stars[index]->getSpherical_history_obs()) {
+                    *data_sph_obs[index] << QPointF(state_sph.second.first, state_sph.second.second);
+                }
+            }
+
+            window_sph->printGraph(first, second, third, first_obs, second_obs, third_obs, min_data_x, min_data_y, max_data_x, max_data_y);
+        }
+    };

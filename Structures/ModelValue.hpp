@@ -30,7 +30,7 @@ public:
 
     void setSpeed(const std::vector<long double>& X_vector);
 
-    Matrix* getDRA_Decl_dR();
+    Matrix *getDRA_Decl_dR();
     void setDRA_Decl_dR(const Matrix& newDRA_Decl_dR);
 
     Matrix getDX_dB() const;

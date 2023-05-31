@@ -21,7 +21,7 @@ public:
     explicit Window_Sph_Graph(QWidget* parent = nullptr);
     ~Window_Sph_Graph();
 
-    void printGraph(QLineSeries* firstStar, QLineSeries* secondStar, QLineSeries* thirdStar,
+    void printGraph(QLineSeries* firstStar, QLineSeries* secondStar, QLineSeries* thirdStar, QLineSeries *first_obs, QLineSeries *second_obs, QLineSeries *thirdStar_obs,
         long double& min_x, long double& min_y,
         long double& max_x, long double& max_y);
 

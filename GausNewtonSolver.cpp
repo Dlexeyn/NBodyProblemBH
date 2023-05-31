@@ -11,27 +11,27 @@ void GausNewtonSolver::calculate_dRA_Decl_dR(ModelValue& current_value)
     double y = current_value.getCortesian_pos()[1];
     double z = current_value.getCortesian_pos()[2];
 
-    double RA_denomerator = x * x + y * y;
-    current_value.getDRA_Decl_dR()->setElement(0, 0, -1 * y / RA_denomerator); // dRA/dx
-    current_value.getDRA_Decl_dR()->setElement(0, 1, x / RA_denomerator); // dRA/dy
-    current_value.getDRA_Decl_dR()->setElement(0, 2, 0); // dRA/dz
+//    double RA_denomerator = x * x + y * y;
+//    current_value.getDRA_Decl_dR()->setElement(0, 0, -1 * y / RA_denomerator); // dRA/dx
+//    current_value.getDRA_Decl_dR()->setElement(0, 1, x / RA_denomerator); // dRA/dy
+//    current_value.getDRA_Decl_dR()->setElement(0, 2, 0); // dRA/dz
 
-    double Decl_denomerator = (x * x + y * y + z * z) * sqrt(RA_denomerator);
+//    double Decl_denomerator = (x * x + y * y + z * z) * sqrt(RA_denomerator);
 
-    current_value.getDRA_Decl_dR()->setElement(1, 0, -1 * (x * z) / Decl_denomerator); // dDecl/dx
-    current_value.getDRA_Decl_dR()->setElement(1, 1, -1 * (y * z) / Decl_denomerator); // dDecl/dy
-    current_value.getDRA_Decl_dR()->setElement(1, 2, sqrt(RA_denomerator) / (x * x + y * y + z * z)); // dDecl/dz
+//    current_value.getDRA_Decl_dR()->setElement(1, 0, -1 * (x * z) / Decl_denomerator); // dDecl/dx
+//    current_value.getDRA_Decl_dR()->setElement(1, 1, -1 * (y * z) / Decl_denomerator); // dDecl/dy
+//    current_value.getDRA_Decl_dR()->setElement(1, 2, sqrt(RA_denomerator) / (x * x + y * y + z * z)); // dDecl/dz
 
-//    current_value.getDRA_Decl_dR()->setElement(0, 0, -1 * y / (x * x + y * y));
-//    current_value.getDRA_Decl_dR()->setElement(0, 1, x / (x * x + y * y));
-//    current_value.getDRA_Decl_dR()->setElement(0, 2, 0);
+    current_value.getDRA_Decl_dR()->setElement(0, 0, -1 * y / (x * x + y * y));
+    current_value.getDRA_Decl_dR()->setElement(0, 1, x / (x * x + y * y));
+    current_value.getDRA_Decl_dR()->setElement(0, 2, 0);
 
-//    double a = x * x + y * y + z * z;
-//    double b = std::sqrt(x * x + y * y);
+    double a = x * x + y * y + z * z;
+    double b = std::sqrt(x * x + y * y);
 
-//    current_value.getDRA_Decl_dR()->setElement(1, 0, -1 * x * z / (a * b)); // dDecl/dx
-//    current_value.getDRA_Decl_dR()->setElement(1, 1, -1 * y * z / (a * b)); // dDecl/dy
-//    current_value.getDRA_Decl_dR()->setElement(1, 2, (x * x + y * y) / (a * b)); // dDecl/dz
+    current_value.getDRA_Decl_dR()->setElement(1, 0, -1 * x * z / (a * b)); // dDecl/dx
+    current_value.getDRA_Decl_dR()->setElement(1, 1, -1 * y * z / (a * b)); // dDecl/dy
+    current_value.getDRA_Decl_dR()->setElement(1, 2, (x * x + y * y) / (a * b)); // dDecl/dz
 
 }
 
@@ -54,7 +54,6 @@ vector<long double> GausNewtonSolver::Gauss_Newton(vector<long double> &x0, Matr
 Matrix GausNewtonSolver::solve_system(Matrix& gradient_f, Matrix& f_b)
 {
     Matrix L = f_b.Cholesky_decomposition(gradient_f);
-
     Matrix y(L.Get_sizeN(), f_b.Get_sizeM());
 
     for (int i = 0; i < L.Get_sizeN(); i++) {

@@ -47,17 +47,17 @@ public:
 
     void calculateDF_dB(const vector<long double>& X, const long double& r_pos, Matrix& dF_dB)
     {
-        // da/dM = - G r / |r| ^ 3
+//         da/dM = - G r / |r| ^ 3
         for (int i = 0; i < SIZE_VECTOR; i++) {
-            long double debug_var = -(X[i] * G) / pow(r_pos, 3);
+            long double debug_var = -(X[i]*G) / pow(r_pos, 3);
             dF_dB.setElement(3 + i, 6, debug_var);
         }
     }
 
     Matrix calculateDF_dX(const vector<long double>& X, const long double& r_pos, Matrix& dF_dX)
     {
-        //long double M = stars[star_index]->getInit_state()[6];
-        long double M = M_BH;
+        long double M = stars[star_index]->getInit_state()[6];
+        //long double M = M_BH;
         for (int i = 3; i < dF_dX.Get_sizeN(); i++) {
             for (int j = 0; j < SIZE_VECTOR; j++) {
                 if (i == j + 3) {
@@ -105,8 +105,8 @@ public:
     void equationPN(const SimulationVector& state, SimulationVector& answer)
     {
         long double r_pos = 0, r_speed = 0, prod_vectors = 0;
-        //long double M = init_states[star_index][6];
-        long double M = M_BH;
+        long double M = init_states[star_index][6];
+        //long double M = M_BH;
         answer.clearX_vector();
         vector<long double> accel(SIZE_VECTOR);
 
@@ -262,8 +262,8 @@ public:
                     addNewModelValue(values[star_index], cur_state, RA_Decl);
                 }
             }
-            if (isAllCalculated(place_numbers))
-                break;
+//            if (isAllCalculated(place_numbers))
+//                break;
             steps--;
             counter++;
         }
@@ -299,7 +299,7 @@ public:
             auto RA_Decl_model = cur_star->getSpherical_history_model()[position];
 
             transformDR_DB(dX_dB, value_vector[i]);
-            dR_dB = (-1 * (*value_vector[i].getDRA_Decl_dR()) * dX_dB);
+            dR_dB = *value_vector[i].getDRA_Decl_dR() * dX_dB;
 
             // delta = table value - model value
             d_RA = RA_Decl_obs.second.first - RA_Decl_model.first;
@@ -339,10 +339,15 @@ public:
             cout << "Итерация " << i + 1 << " :\n";
             runSimulation(HOUR * DAY * YEAR * 20);
             // inverse_problem
-            for (size_t star_index = 0; star_index < 3; star_index++) {
+            for (size_t star_index = 0; star_index < 1; star_index++) {
                 inverseTask(stars[star_index], values[star_index]);
+                cout<<"IndexStar"<<star_index<<"\n";
+                auto cur_init_state = stars[star_index]->getInit_state();
+                for(int i = 0;i<Size_Matrix_B;i++){
+                    cout << cur_init_state[i] << " ";
+                }
+                cout << "\n";
             }
-
             i++;
             clearData();
         }
@@ -379,7 +384,13 @@ public:
         QtCharts::QLineSeries* first = new QtCharts::QLineSeries();
         QtCharts::QLineSeries* second = new QtCharts::QLineSeries();
         QtCharts::QLineSeries* third = new QtCharts::QLineSeries();
+
+        QtCharts::QLineSeries* first_obs = new QtCharts::QLineSeries();
+        QtCharts::QLineSeries* second_obs = new QtCharts::QLineSeries();
+        QtCharts::QLineSeries* third_obs = new QtCharts::QLineSeries();
+
         vector<QtCharts::QLineSeries*> data_sph = { first, second, third };
+        vector<QtCharts::QLineSeries*> data_sph_obs = { first_obs, second_obs, third_obs };
 
         for (size_t index = 0; index < stars.size(); index++) {
 
@@ -391,7 +402,13 @@ public:
                 max_data_y = (max_data_y < state_sph.second) ? state_sph.second : max_data_y;
                 *data_sph[index] << QPointF(state_sph.first, state_sph.second);
             }
+
+            for (auto state_sph : stars[index]->getSpherical_history_obs()) {
+                *data_sph_obs[index] << QPointF(state_sph.second.first, state_sph.second.second);
+            }
         }
-        window_sph->printGraph(first, second, third, min_data_x, min_data_y, max_data_x, max_data_y);
+
+
+        window_sph->printGraph(first, second, third, first_obs, second_obs, third_obs, min_data_x, min_data_y, max_data_x, max_data_y);
     }
 };

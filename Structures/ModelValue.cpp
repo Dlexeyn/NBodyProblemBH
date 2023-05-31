@@ -38,7 +38,7 @@ ModelValue::ModelValue()
     speed.resize(SIZE_VECTOR);
 }
 
-Matrix* ModelValue::getDRA_Decl_dR()
+Matrix *ModelValue::getDRA_Decl_dR()
 {
     return &dRA_Decl_dR;
 }

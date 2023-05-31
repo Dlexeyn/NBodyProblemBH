@@ -22,5 +22,4 @@ const int Model_Size = 7300;
 const int Size_Matrix_B = 7;
 
 const int Iters_Num = 10;
-
 #endif // CONSTANTS_H

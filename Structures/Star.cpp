@@ -42,7 +42,7 @@ public:
         // E matrix on 0 step
         for(size_t y = 0; y < 6; y++)
         {
-            for(size_t x = 0; x < 7; x++)
+            for(size_t x = 0; x < Size_Matrix_B; x++)
             {
                 if(x == y)
                 {
@@ -184,6 +184,8 @@ public:
 
     void setInit_state(const vector<long double>& newInit_state)
     {
-        init_state = newInit_state;
+        for (int i =0; i< Size_Matrix_B;i++){
+            init_state[i] = newInit_state[i];
+        }
     }
 };

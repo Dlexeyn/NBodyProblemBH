@@ -88,19 +88,20 @@ Matrix Matrix::Cholesky_decomposition(const Matrix &A)
                 sum = std::fma(L.matrix[i][k], L.matrix[j][k],sum);
 
             if (i == j){
-                long double temp = abs(A.matrix[i][i] - sum);
-                if(temp<0){
-                    L.matrix[i][j]=0;
-                }
-                else
-                    L.matrix[i][j] = sqrt(temp);
+                long double temp = pow(10,79) *A.matrix[i][i] - pow(10,10) *sum;
+                temp=temp/pow(10,79);
+//                if(temp<0){
+//                    L.matrix[i][j]=0;
+//                }
+//                else
+                L.matrix[i][j] = sqrtl(temp);
             }
             else{
                 if(L.matrix[j][j] == 0){
                     L.matrix[i][j] = 0;
                 }
                 else {
-                    L.matrix[i][j] = (1.0 / L.matrix[j][j] * (A.matrix[i][j] - sum));
+                    L.matrix[i][j] = (1.0 / L.matrix[j][j] * (pow(10,79) *A.matrix[i][j] - sum* pow(10,79))/pow(10,79));
                 }
 
             }

@@ -95,6 +95,9 @@ public:
         }
         exit(1);
     }
+    ~Matrix(){
+        matrix.clear();
+    }
 };
 
 #endif // UNTITLED_MATRIX_H

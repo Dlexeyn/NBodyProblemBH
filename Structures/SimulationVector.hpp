@@ -56,7 +56,10 @@ public:
         setDX__dr0_dv0_dM(V.getDX__dr0_dv0_dM());
         return *this;
     }
-
+    long double operator[](int i) const
+    {
+        return X_vector[i];
+    }
     Matrix getDX__dr0_dv0_dM() const;
 
     void setDX__dr0_dv0_dM(const Matrix& newDX__dr0_dv0_dM);

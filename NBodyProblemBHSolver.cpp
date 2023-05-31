@@ -11,6 +11,7 @@
 #include <cmath>
 #include <fstream>
 #include <vector>
+#include <iomanip>
 
 using namespace std;
 
@@ -33,6 +34,8 @@ private:
     SimulationVector k1, k2, k3, k4;
 
     size_t star_index;
+
+    int f =1;
 
 public:
     Simulation(Star* S2, Star* S38, Star* S55, long double dt)
@@ -286,6 +289,7 @@ public:
         Matrix A = Matrix(num_rows * 2, Size_Matrix_B);
 
         long double d_RA = 0, d_Decl = 0;
+        long double sum_RA = 0, sum_Decl = 0;
 
         for (int i = 0; i < num_rows; i++) {
             GNSolver.calculate_dRA_Decl_dR(value_vector[i]);
@@ -314,9 +318,18 @@ public:
                 A.setElement(2 * i, j, dR_dB.Get_matrix()[0][j]);
                 A.setElement(2 * i + 1, j, dR_dB.Get_matrix()[1][j]);
             }
-
+            sum_RA+=pow(d_RA,2);
+            sum_Decl+=pow(d_Decl,2);
             R.setElement(2 * i, 0, d_RA);
             R.setElement(2 * i + 1, 0, d_Decl);
+        }
+        cout << setprecision(10);
+        if(f == 1){
+            f=0;
+        }
+        else{
+            cout<<"Среднее квадратичное отклонение между Ra "<<sqrtl(sum_RA)<<"\n";
+            cout<<"Среднее квадратичное отклонение между Decl "<<sqrtl(sum_Decl)<<"\n";
         }
         cur_star->setInit_state(GNSolver.Gauss_Newton(cur_star->getInit_state(), A, R));
     }

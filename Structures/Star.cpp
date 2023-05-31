@@ -39,6 +39,12 @@ public:
         init_state = prev_state.getX_vector();
         init_state.push_back(M_BH);
 
+        cout << "Init state: \n";
+
+        for(int i = 0; i < init_state.size(); i++)
+            cout << init_state[i] << " ";
+        cout << "\n";
+
         // E matrix on 0 step
         for(size_t y = 0; y < 6; y++)
         {

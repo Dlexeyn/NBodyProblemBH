@@ -9,22 +9,27 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    DirectNBodyProblemBH.cpp \
-    InverseNBodyProblemBH.cpp \
-    Structures/Model.cpp \
+    GausNewtonSolver.cpp \
+    NBodyProblemBHSolver.cpp \
+    Structures/ModelValue.cpp \
     Structures/SimulationVector.cpp \
     Structures/Star.cpp \
+    Structures/Matrix.cpp \
+    Structures/VectorsOperations.cpp \
     main.cpp \
-    window_sph_graph.cpp
+    Graphics/window_sph_graph.cpp
 
 HEADERS += \
+    GausNewtonSolver.hpp \
     Options/Constants.h \
-    Structures/Model.hpp \
+    Structures/ModelValue.hpp \
     Structures/SimulationVector.hpp \
-    window_sph_graph.hpp
+    Structures/Matrix.h \
+    Structures/VectorsOperations.hpp \
+    Graphics/window_sph_graph.hpp
 
 FORMS += \
-    window_sph_graph.ui
+    Graphics/window_sph_graph.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

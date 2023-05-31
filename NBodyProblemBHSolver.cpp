@@ -389,7 +389,7 @@ public:
                 cout << "Итерация " << i + 1 << " :\n";
                 runSimulation(HOUR * DAY * YEAR * 20);
                 // inverse_problem
-                for (size_t star_index = 0; star_index < 1; star_index++) {
+                for (size_t star_index = 0; star_index < 3; star_index++) {
                     cout << "\tStar " << stars[star_index]->getName() << "\n";
                     inverseTask(stars[star_index], values[star_index]);
                     auto cur_init_state = stars[star_index]->getInit_state();

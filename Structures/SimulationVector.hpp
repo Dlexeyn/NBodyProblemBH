@@ -2,8 +2,8 @@
 #define SIMULATIONVECTOR_HPP
 
 #include "Matrix.h"
-#include "Options/Constants.h"
 #include "VectorsOperations.hpp"
+#include "../Options/Constants.h"
 #include <vector>
 
 class SimulationVector {

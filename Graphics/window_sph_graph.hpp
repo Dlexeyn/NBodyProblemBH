@@ -8,7 +8,6 @@
 #include <QMainWindow>
 #include <QValueAxis>
 
-using namespace QtCharts;
 
 namespace Ui {
 class Window_Sph_Graph;
@@ -19,7 +18,7 @@ class Window_Sph_Graph : public QMainWindow {
 
 public:
     explicit Window_Sph_Graph(QWidget* parent = nullptr);
-    ~Window_Sph_Graph();
+    ~Window_Sph_Graph() override;
 
     void printGraph(QLineSeries* firstStar, QLineSeries* secondStar, QLineSeries* thirdStar, QLineSeries *first_obs, QLineSeries *second_obs, QLineSeries *thirdStar_obs,
         long double& min_x, long double& min_y,

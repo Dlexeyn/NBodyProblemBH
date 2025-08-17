@@ -422,16 +422,16 @@ public:
         {
             long double min_data_x = 100.0, min_data_y = 100.0;
             long double max_data_x = -100.0, max_data_y = -100.0;
-            QtCharts::QLineSeries* first = new QtCharts::QLineSeries();
-            QtCharts::QLineSeries* second = new QtCharts::QLineSeries();
-            QtCharts::QLineSeries* third = new QtCharts::QLineSeries();
+            auto * first = new QLineSeries();
+            auto * second = new QLineSeries();
+            auto * third = new QLineSeries();
 
-            QtCharts::QLineSeries* first_obs = new QtCharts::QLineSeries();
-            QtCharts::QLineSeries* second_obs = new QtCharts::QLineSeries();
-            QtCharts::QLineSeries* third_obs = new QtCharts::QLineSeries();
+            auto * first_obs = new QLineSeries();
+            auto * second_obs = new QLineSeries();
+            auto * third_obs = new QLineSeries();
 
-            vector<QtCharts::QLineSeries*> data_sph = { first, second, third };
-            vector<QtCharts::QLineSeries*> data_sph_obs = { first_obs, second_obs, third_obs };
+            vector<QLineSeries*> data_sph = { first, second, third };
+            vector<QLineSeries*> data_sph_obs = { first_obs, second_obs, third_obs };
 
             for (size_t index = 0; index < stars.size(); index++) {
 
